@@ -1,0 +1,59 @@
+/* 1. 表頭深綠色背景，並設定高度來模擬 padding: 12px */
+.table-view .column-header,
+.table-view .column-header-background .filler {
+    background-color: #0a5338; 
+    -fx-background-color: #0a5338; 
+    
+    size: 45px;
+    -fx-size: 45px; 
+    
+    border-color: transparent transparent #ddd transparent;
+    -fx-border-color: transparent transparent #ddd transparent;
+}
+
+/* 表頭文字變白、加粗、置中 */
+.table-view .column-header .label {
+    font-weight: bold; 
+    -fx-font-weight: bold;
+    
+    -fx-text-fill: white;
+    -fx-alignment: center; 
+}
+
+/* 2. 儲存格完全依照你的 CSS 距離設定 */
+.table-view .table-cell {
+    padding: 12px;
+    -fx-padding: 12px 12px 12px 12px; 
+    
+    border-color: transparent transparent #ddd transparent; 
+    -fx-border-color: transparent transparent #ddd transparent;
+    
+    -fx-alignment: center; /* 文字置中 */
+}
+
+/* 3. 修正：當表格列(Row)內含按鈕時，避免預設的 padding 疊加導致高度爆開 */
+.table-view .table-row-cell {
+    size: 50px; 
+    -fx-cell-size: 50px; /* 📊 固定每一行基本高度 */
+}
+
+/* 4. 移除點擊表頭時出現的藍色邊框 */
+.table-view .column-header:focused {
+    background-color: #0a5338; 
+    -fx-background-color: #0a5338;
+}
+
+/* 5. 自訂使用者點擊選取某一列（Row）時的背景顏色 */
+.table-view .table-row-cell:selected {
+    background-color: rgb(214,249,214); 
+    -fx-background-color: rgb(214,249,214); 
+    
+    color: #0a5338; 
+    -fx-text-fill: #0a5338; 
+}
+
+/* 確保表格內的文字元件（Label）也同步強制使用深綠色 */
+.table-view .table-row-cell:selected .table-cell {
+    color: #0a5338; 
+    -fx-text-fill: #0a5338;
+}
