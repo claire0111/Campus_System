@@ -1,2 +1,1 @@
-#
- Campus_System
+# Campus_System
