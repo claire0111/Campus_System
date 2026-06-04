@@ -1,0 +1,18 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+        "type": "java",
+        "name": "Launch JavaFX (自動識別專案)",
+        "request": "launch",
+        "mainClass": "Main",
+        "vmArgs": "--module-path \"C:/javafx-sdk-17.0.19/lib\" --add-modules javafx.controls,javafx.fxml"
+    },
+    {
+        "type": "java",
+        "name": "Launch via Launcher",
+        "request": "launch",
+        "mainClass": "Launcher"
+    }
+  ]
+}
