@@ -6,7 +6,7 @@
         "name": "Launch JavaFX (自動識別專案)",
         "request": "launch",
         "mainClass": "Main",
-        "vmArgs": "--module-path \"C:/javafx-sdk-17.0.19/lib\" --add-modules javafx.controls,javafx.fxml"
+        "vmArgs": "--module-path \"${workspaceFolder}/javafx-sdk-24.0.1/lib\" --add-modules javafx.controls,javafx.fxml"
     },
     {
         "type": "java",

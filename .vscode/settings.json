@@ -1,14 +1,20 @@
 {
     "java.project.referencedLibraries": [
-        "lib/**/*.jar",
-        "c:\\Users\\user\\Downloads\\openjfx-17.0.19_windows-x64_bin-sdk\\javafx-sdk-17.0.19\\lib\\javafx.base.jar",
-        "c:\\Users\\user\\Downloads\\openjfx-17.0.19_windows-x64_bin-sdk\\javafx-sdk-17.0.19\\lib\\javafx.controls.jar",
-        "c:\\Users\\user\\Downloads\\openjfx-17.0.19_windows-x64_bin-sdk\\javafx-sdk-17.0.19\\lib\\javafx.fxml.jar",
-        "c:\\Users\\user\\Downloads\\openjfx-17.0.19_windows-x64_bin-sdk\\javafx-sdk-17.0.19\\lib\\javafx.graphics.jar",
-        "c:\\Users\\user\\Downloads\\openjfx-17.0.19_windows-x64_bin-sdk\\javafx-sdk-17.0.19\\lib\\javafx.media.jar",
-        "c:\\Users\\user\\Downloads\\openjfx-17.0.19_windows-x64_bin-sdk\\javafx-sdk-17.0.19\\lib\\javafx.swing.jar",
-        "c:\\Users\\user\\Downloads\\openjfx-17.0.19_windows-x64_bin-sdk\\javafx-sdk-17.0.19\\lib\\javafx.web.jar",
-        "c:\\Users\\user\\Downloads\\openjfx-17.0.19_windows-x64_bin-sdk\\javafx-sdk-17.0.19\\lib\\javafx-swt.jar",
-        "c:\\Users\\user\\Downloads\\json-20240303.jar"
-    ]
+        "c:\\Users\\clair\\Desktop\\Campus_System\\javafx-sdk-24.0.1\\lib\\javafx.swing.jar",
+        "c:\\Users\\clair\\Desktop\\Campus_System\\javafx-sdk-24.0.1\\lib\\javafx-swt.jar",
+        "c:\\Users\\clair\\Desktop\\Campus_System\\javafx-sdk-24.0.1\\lib\\javafx.web.jar",
+        "c:\\Users\\clair\\Desktop\\Campus_System\\javafx-sdk-24.0.1\\lib\\json-20260522.jar",
+        "c:\\Users\\clair\\Desktop\\Campus_System\\javafx-sdk-24.0.1\\lib\\jfx.incubator.richtext.jar",
+        "c:\\Users\\clair\\Desktop\\Campus_System\\javafx-sdk-24.0.1\\lib\\javafx.base.jar",
+        "c:\\Users\\clair\\Desktop\\Campus_System\\javafx-sdk-24.0.1\\lib\\jfx.incubator.input.jar",
+        "c:\\Users\\clair\\Desktop\\Campus_System\\javafx-sdk-24.0.1\\lib\\jdk.jsobject.jar",
+        "c:\\Users\\clair\\Desktop\\Campus_System\\javafx-sdk-24.0.1\\lib\\javafx.graphics.jar",
+        "c:\\Users\\clair\\Desktop\\Campus_System\\javafx-sdk-24.0.1\\lib\\javafx.fxml.jar",
+        "c:\\Users\\clair\\Desktop\\Campus_System\\javafx-sdk-24.0.1\\lib\\javafx.controls.jar",
+        "c:\\Users\\clair\\Desktop\\Campus_System\\javafx-sdk-24.0.1\\lib\\javafx.media.jar"
+    ],
+    "java.project.sourcePaths": [
+        "java_frontFX\\JAVAFX\\src"
+    ],
+    "java.jdt.ls.java.home": "C:/Program Files/Java/jdk-24"
 }

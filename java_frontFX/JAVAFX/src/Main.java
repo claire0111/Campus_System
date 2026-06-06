@@ -295,7 +295,7 @@ public class Main extends Application {
         });
 
         table.getColumns().addAll(colName, colLocation, colRegTime, colEventTime, colContact, colStatus, colAction);
-        rawData = loadEventsFromJson("C:/Users/user/Desktop/java_frontFX/JAVAFX/events.json");
+        rawData = loadEventsFromJson("events.json");
         FilteredList<Event> filteredData = new FilteredList<>(rawData, p -> true);
         searchBtn.setOnAction(e -> {
             String searchStr = searchField.getText().trim().toLowerCase();
