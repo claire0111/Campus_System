@@ -11,7 +11,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
-import javafx.util.Callback;
+import javafx.util.Callback; 
 
 // 引入 JSON 庫
 import org.json.JSONArray;
