@@ -13,7 +13,7 @@ import model.Registration;
 
 public class RegistrationService {
     // 報名、取消報名、防重複
-    private final String FILE_PATH = "registration list.csv";
+    private final String FILE_PATH = "data/registration list.csv";
 
     private ObservableList<Registration> registrations = FXCollections.observableArrayList();
 

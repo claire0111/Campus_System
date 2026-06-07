@@ -59,12 +59,22 @@ public class LoginService {
         return currentUser;
     }
 
+    // 取得使用者 ID（便捷方法）
+    public String getUserId() {
+        return currentUser != null ? currentUser.getId() : "";
+    }
+
+    // 取得使用者名稱（便捷方法）
+    public String getUserName() {
+        return currentUser != null ? currentUser.getName() : "";
+    }
+
     // Student CSV
     private User checkStudent(String id, String pwd) {
 
         try {
             List<String> lines = Files.readAllLines(
-                    Paths.get("student list.csv"));
+                    Paths.get("data/student list.csv"));
 
             for (int i = 1; i < lines.size(); i++) {
 
@@ -77,7 +87,7 @@ public class LoginService {
                 String password = data[2];
 
                 if (sid.equals(id) && password.equals(pwd)) {
-                    return new User(sid, name, "student");
+                    return new User(sid, "student", name);
                 }
             }
 
@@ -93,7 +103,7 @@ public class LoginService {
 
         try {
             List<String> lines = Files.readAllLines(
-                    Paths.get("teacher list.csv"));
+                    Paths.get("data/teacher list.csv"));
 
             for (int i = 1; i < lines.size(); i++) {
 
@@ -106,7 +116,7 @@ public class LoginService {
                 String password = data[2];
 
                 if (tid.equals(id) && password.equals(pwd)) {
-                    return new User(tid, name, "teacher");
+                    return new User(tid, "teacher", name);
                 }
             }
 

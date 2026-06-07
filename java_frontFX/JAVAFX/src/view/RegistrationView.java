@@ -1,20 +1,29 @@
 package view;
 
-import javafx.scene.control.TableColumn;
+import javafx.collections.ObservableList;
 import javafx.scene.control.TableView;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import model.Registration;
 import service.RegistrationService;
 
 public class RegistrationView {
-public VBox createTable(RegistrationService service, String studentId) {
 
-        TableView table = new TableView();
+    private RegisteredTableView registeredTableView = new RegisteredTableView();
 
-        table.setItems(service.getByStudent(studentId));
+    public VBox createTable(RegistrationService service, String studentId) {
 
-        TableColumn col1 = new TableColumn("活動ID");
-        table.getColumns().add(col1);
+        ObservableList<Registration> data = service.getByStudent(studentId);
 
-        return new VBox(table);
+        TableView<Registration> table = registeredTableView.createTable(
+                data,
+                // 取消報名 callback
+                (sid, activityId) -> service.cancel(sid, activityId)
+        );
+
+        VBox.setVgrow(table, Priority.ALWAYS);
+        VBox box = new VBox(table);
+        VBox.setVgrow(box, Priority.ALWAYS);
+        return box;
     }
 }

@@ -1,11 +1,10 @@
 package view;
 
-import java.lang.classfile.Label;
-
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Hyperlink;
-import javafx.scene.layout.HBox;
+import javafx.scene.control.Label;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import service.EventService;
@@ -13,102 +12,199 @@ import service.LoginService;
 import service.RegistrationService;
 
 public class MainView {
-    private LoginService loginService = new LoginService();
-    private EventService eventService = new EventService();
-    private RegistrationService regService = new RegistrationService();
+
+    private final LoginService loginService;
+    private final EventService eventService;
+    private final RegistrationService regService;
 
     private VBox root;
     private VBox centerArea;
 
-    private Label tableTitle;
-    private Hyperlink menu1, menu2, menu3;
-
+    private NavbarView navbarView;
+    private SearchView searchView;
     private EventView eventView;
     private RegistrationView registrationView;
     private LoginView loginView;
 
+    public MainView(EventService eventService,
+                    LoginService loginService,
+                    RegistrationService regService) {
+        this.eventService = eventService;
+        this.loginService = loginService;
+        this.regService = regService;
+    }
+
     public Scene createScene(Stage stage) {
 
+        // 初始化子 View
+        navbarView = new NavbarView();
+        searchView = new SearchView();
         eventView = new EventView();
         registrationView = new RegistrationView();
         loginView = new LoginView();
 
         root = new VBox();
+        root.setStyle("-fx-background-color: #ffffff;");
 
-        root.getChildren().addAll(createNavbar(stage), createCenter());
+        // 建立導覽列
+        var navbar = navbarView.create(
+                () -> showEvents(),
+                () -> showMyRegistrations(),
+                () -> handleLoginOrLogout()
+        );
+
+        centerArea = new VBox();
+        VBox.setVgrow(centerArea, Priority.ALWAYS);
+
+        root.getChildren().addAll(navbar, centerArea);
+        VBox.setVgrow(root, Priority.ALWAYS);
+
+        // 預設顯示活動列表
+        showEvents();
 
         return new Scene(root, 1050, 700);
     }
 
-    // ================= NAVBAR =================
-    private HBox createNavbar(Stage stage) {
-
-        menu1 = new Hyperlink("活動列表");
-        menu2 = new Hyperlink("我的報名");
-        menu3 = new Hyperlink("登入");
-
-        menu1.setOnAction(e -> showEvents());
-        menu2.setOnAction(e -> showMyRegistrations());
-        menu3.setOnAction(e -> showLogin());
-
-        HBox box = new HBox(20, menu1, menu2, menu3);
-        return box;
-    }
-
-    // ================= CENTER =================
-    private VBox createCenter() {
-        centerArea = new VBox();
-        tableTitle = new Label("活動列表");
-
-        centerArea.getChildren().addAll(tableTitle, eventView.createTable(eventService));
-
-        return centerArea;
-    }
-
+    // ================= 顯示活動列表 =================
     private void showEvents() {
-        tableTitle.setText("活動列表");
-        centerArea.getChildren().setAll(tableTitle, eventView.createTable(eventService));
+        Label title = makeTitle("📋 活動列表");
+
+        // 用陣列持有 search 的參照，以便 lambda 內可引用（Java 不允許 var 自我參照）
+        VBox[] searchHolder = new VBox[1];
+
+        VBox search = searchView.create(keyword -> {
+            javafx.collections.ObservableList<model.Event> filtered =
+                    javafx.collections.FXCollections.observableArrayList(eventService.search(keyword));
+
+            javafx.scene.control.TableView<model.Event> filteredTable = EventTableView.create(
+                    filtered,
+                    event -> handleRegister(event),
+                    event -> EventDialogView.show(event)
+            );
+            VBox.setVgrow(filteredTable, Priority.ALWAYS);
+            // 用 searchHolder[0] 取得 search 本身
+            centerArea.getChildren().setAll(title, searchHolder[0], filteredTable);
+        });
+        searchHolder[0] = search;
+
+        javafx.scene.control.TableView<model.Event> table = EventTableView.create(
+                eventService.getEvents(),
+                event -> handleRegister(event),
+                event -> EventDialogView.show(event)
+        );
+        VBox.setVgrow(table, Priority.ALWAYS);
+
+        centerArea.getChildren().setAll(title, search, table);
     }
 
+    // ================= 顯示我的報名 =================
     private void showMyRegistrations() {
 
         if (!loginService.isLoggedIn()) {
-            new Alert(Alert.AlertType.WARNING, "請先登入").show();
+            showAlert("請先登入", "請先登入後再查看您的報名記錄！");
             return;
         }
 
-        tableTitle.setText("我的報名");
+        String studentId = loginService.getUserId();
+        String role = loginService.getRole();
 
-        centerArea.getChildren().setAll(
-                tableTitle,
-                registrationView.createTable(regService, loginService.getUserId())
-        );
+        Label title;
+        VBox tableBox;
+
+        if ("teacher".equals(role)) {
+            title = makeTitle("📂 所有活動管理清單");
+            tableBox = eventView.createTable(eventService, loginService, regService);
+        } else {
+            title = makeTitle("📝 我的報名清單");
+            tableBox = registrationView.createTable(regService, studentId);
+        }
+
+        centerArea.getChildren().setAll(title, tableBox);
     }
 
-    private void showLogin() {
+    // ================= 登入 / 登出 =================
+    private void handleLoginOrLogout() {
+        if (loginService.isLoggedIn()) {
+            // 登出
+            loginService.logout();
+            navbarView.setMenu3Text("登入");
+            navbarView.setMenu2Text("我的報名");
+            showAlert("登出成功", "您已成功登出系統！");
+            showEvents();
+        } else {
+            showLoginPage();
+        }
+    }
+
+    private void showLoginPage() {
         centerArea.getChildren().setAll(
                 loginView.createLoginUI(
-                        () -> showStudentLogin(),
-                        () -> showTeacherLogin()
+                        () -> showLoginForm("學生"),
+                        () -> showLoginForm("教職員")
                 )
         );
     }
 
-    private void showStudentLogin() {
+    private void showLoginForm(String role) {
         centerArea.getChildren().setAll(
-                loginView.createLoginForm("學生",
-                        () -> {}, // submit
-                        () -> showLogin()
+                loginView.createLoginForm(
+                        role,
+                        // 登入 submit: (id, pwd) -> void
+                        (id, pwd) -> {
+                            boolean ok = loginService.login(role, id, pwd);
+                            if (ok) {
+                                String name = loginService.getUserName();
+                                navbarView.setMenu3Text("登出 (" + name + ")");
+                                if ("teacher".equals(loginService.getRole())) {
+                                    navbarView.setMenu2Text("已管理清單");
+                                } else {
+                                    navbarView.setMenu2Text("我的報名");
+                                }
+                                showAlert("登入成功", "歡迎回來，" + name + "！");
+                                showEvents();
+                            } else {
+                                showAlert("登入失敗", "帳號或密碼錯誤，請重新輸入！");
+                            }
+                        },
+                        // 返回
+                        () -> showLoginPage()
                 )
         );
     }
 
-    private void showTeacherLogin() {
-        centerArea.getChildren().setAll(
-                loginView.createLoginForm("教職員",
-                        () -> {},
-                        () -> showLogin()
-                )
-        );
+    // ================= 報名邏輯 =================
+    private void handleRegister(model.Event event) {
+        if (!loginService.isLoggedIn()) {
+            showAlert("請先登入", "請先登入後再進行報名！");
+            return;
+        }
+        if (!"student".equals(loginService.getRole())) {
+            showAlert("權限不足", "只有學生可以報名活動！");
+            return;
+        }
+        String studentId = loginService.getUserId();
+        boolean ok = regService.register(studentId, event.getName());
+        if (ok) {
+            showAlert("報名成功", "您已成功報名：" + event.getName());
+        } else {
+            showAlert("重複報名", "您已報名過此活動！");
+        }
+    }
+
+    // ================= 輔助方法 =================
+    private Label makeTitle(String text) {
+        Label lbl = new Label(text);
+        lbl.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #1e293b; -fx-padding: 10 20 5 20;");
+        lbl.setMaxWidth(Double.MAX_VALUE);
+        lbl.setAlignment(Pos.CENTER_LEFT);
+        return lbl;
+    }
+
+    private void showAlert(String title, String msg) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(msg);
+        alert.showAndWait();
     }
 }
