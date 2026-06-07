@@ -1,34 +1,23 @@
 package model;
 
-public class User {
+/**
+ * 使用者抽象基底類別 — 學生與主辦單位共用身分資訊。
+ */
+public abstract class User {
+    protected String id;
+    protected String name;
 
-    // 紀錄目前登入的狀態與身分 (預設未登入)
-    private boolean isLoggedIn = false;
-    private String currentUserRole = "";
-
-    private String id;
-    private String name;
-    private String role;// 學生 / 教職員
-
-    public User(String id, String role, String name) {
-        this.name = name;
+    protected User(String id, String name) {
         this.id = id;
-        this.role = role;
+        this.name = name;
     }
 
-    public String getId() {
-        return id;
-    }
+    public String getId() { return id; }
+    public String getName() { return name; }
 
-    public String getName() {
-        return name;
-    }
+    public abstract String getRole();
+    public abstract void displayMenu();
 
-    public String getRole() {
-        return role;
-    }
-
-    public boolean isOrganizer() {
-        return role.equals("ORGANIZER");
-    }
+    public boolean isOrganizer() { return false; }
+    public boolean isStudent() { return false; }
 }

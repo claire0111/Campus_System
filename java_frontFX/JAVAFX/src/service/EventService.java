@@ -1,76 +1,54 @@
 package service;
 
+import exception.DataLoadException;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import model.Event;
-
-import java.nio.file.*;
-import java.time.LocalDateTime;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-
+import util.CsvUtil;
+import util.EventDateUtil;
 import util.EventStatusUtil;
 
-public class EventService {
-    // 活動資料管理、搜尋、狀態計算（可選）
-    // 全部活動
-    private ObservableList<Event> events = FXCollections.observableArrayList();
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
-    // 載入活動(CSV 讀取)
+public class EventService {
+
+    public enum SortMode {
+        EVENT_TIME_ASC, EVENT_TIME_DESC, REG_START_ASC
+    }
+
+    private ObservableList<Event> events = FXCollections.observableArrayList();
+    private String filePath = "data/activity sheet.csv";
+
     public ObservableList<Event> loadEvents(String filePath) {
+        this.filePath = filePath;
         ObservableList<Event> list = FXCollections.observableArrayList();
 
         try {
-            List<String> lines = Files.readAllLines(
-                    Paths.get(filePath),
-                    StandardCharsets.UTF_8
-            );
-
+            List<String[]> rows = CsvUtil.readAll(filePath);
             LocalDateTime now = LocalDateTime.now();
 
-            for (int i = 1; i < lines.size(); i++) {
+            for (String[] data : rows) {
+                if (data.length < 10) continue;
+                if (data[0].isEmpty() && data[1].isEmpty()) continue;
 
-                String line = lines.get(i).trim();
-                if (line.isEmpty()) continue;
-
-                String[] data = parseCSV(line);
-                if (data.length < 11) continue;
-
-                String name = data[1];
-                String location = data[2];
-                String content = data[3];
-                String activityTime = data[4];
                 String regStart = data[5];
                 String regEnd = data[6];
-                String unit = data[7];
-                String contact = data[8];
-
-                // 狀態計算
-                String  status = EventStatusUtil.calculate(regStart, regEnd, now);
+                String status = EventStatusUtil.calculate(regStart, regEnd, now);
 
                 list.add(new Event(
-                        name,
-                        location,
-                        regStart + " ~ " + regEnd,
-                        activityTime,
-                        contact,
-                        status,
-                        unit,
-                        content
+                        data[0], data[1], data[2], regStart, regEnd, data[4],
+                        data[8], status, data[7], data[3], parseLimit(data[9])
                 ));
             }
-
-        } catch (Exception e) {
+        } catch (DataLoadException e) {
             list.add(new Event(
-                    "CSV讀取失敗",
-                    "請檢查檔案",
-                    "",
-                    "",
-                    "",
-                    "❌ 錯誤",
-                    "",
-                    ""
+                    "0", "CSV讀取失敗", "請檢查檔案",
+                    "", "", "", "", "❌ 錯誤", "", e.getMessage(), 0
             ));
         }
 
@@ -78,53 +56,162 @@ public class EventService {
         return list;
     }
 
-   
-
-    // CSV parser（避免逗號炸掉）
-    private String[] parseCSV(String line) {
-
-        boolean inQuote = false;
-        StringBuilder sb = new StringBuilder();
-        java.util.List<String> result = new java.util.ArrayList<>();
-
-        for (char c : line.toCharArray()) {
-
-            if (c == '"') {
-                inQuote = !inQuote;
-            } else if (c == ',' && !inQuote) {
-                result.add(sb.toString().trim());
-                sb.setLength(0);
-            } else {
-                sb.append(c);
-            }
+    private int parseLimit(String value) {
+        try {
+            return Integer.parseInt(value.trim());
+        } catch (Exception e) {
+            return 0;
         }
-
-        result.add(sb.toString().trim());
-
-        return result.toArray(new String[0]);
     }
 
+    public void refreshStatus() {
+        LocalDateTime now = LocalDateTime.now();
+        for (Event e : events) {
+            e.setStatus(EventStatusUtil.calculate(e.getRegStart(), e.getRegEnd(), now));
+        }
+    }
 
-    // 取得全部活動
     public ObservableList<Event> getEvents() {
         return events;
     }
 
-    // 搜尋功能
-    public FilteredList<Event> search(String keyword) {
-        FilteredList<Event> filtered = new FilteredList<>(events, e -> true);
-
-        if (keyword == null || keyword.isBlank()) {
-            return filtered;
+    /** 取得尚未結束的活動（即將舉行或進行中） */
+    public ObservableList<Event> getUpcomingEvents() {
+        ObservableList<Event> upcoming = FXCollections.observableArrayList();
+        for (Event e : events) {
+            if (EventDateUtil.isUpcoming(e)) upcoming.add(e);
         }
+        return upcoming;
+    }
+
+    public Event getById(String id) {
+        for (Event e : events) {
+            if (e.getId().equals(id)) return e;
+        }
+        return null;
+    }
+
+    /** 依活動 ID 或活動名稱查找（相容舊報名資料） */
+    public Event findByActivityRef(String ref) {
+        if (ref == null || ref.isBlank()) return null;
+        Event byId = getById(ref);
+        if (byId != null) return byId;
+        for (Event e : events) {
+            if (ref.equals(e.getName())) return e;
+        }
+        return null;
+    }
+
+    public ObservableList<Event> searchAndSort(String keyword, SortMode sortMode) {
+        String lower = (keyword == null || keyword.isBlank()) ? null : keyword.toLowerCase();
+
+        ObservableList<Event> result = FXCollections.observableArrayList();
+        for (Event e : events) {
+            if (!EventDateUtil.isUpcoming(e)) continue;
+            if (lower != null && !matchesKeyword(e, lower)) continue;
+            result.add(e);
+        }
+        sortEvents(result, sortMode);
+        return result;
+    }
+
+    private boolean matchesKeyword(Event event, String lower) {
+        return event.getName().toLowerCase().contains(lower)
+                || event.getLocation().toLowerCase().contains(lower)
+                || event.getUnit().toLowerCase().contains(lower)
+                || event.getContent().toLowerCase().contains(lower)
+                || event.getContact().toLowerCase().contains(lower);
+    }
+
+    public void sortEvents(ObservableList<Event> list, SortMode mode) {
+        Comparator<Event> cmp = switch (mode) {
+            case EVENT_TIME_ASC -> Comparator.comparing(
+                    e -> EventDateUtil.parseEventStart(e.getEventTime()),
+                    Comparator.nullsLast(Comparator.naturalOrder()));
+            case EVENT_TIME_DESC -> Comparator.comparing(
+                    e -> EventDateUtil.parseEventStart(e.getEventTime()),
+                    Comparator.nullsLast(Comparator.reverseOrder()));
+            case REG_START_ASC -> Comparator.comparing(
+                    e -> EventDateUtil.parseDateTime(e.getRegStart()),
+                    Comparator.nullsLast(Comparator.naturalOrder()));
+        };
+        FXCollections.sort(list, cmp);
+    }
+
+    public FilteredList<Event> search(String keyword) {
+        FilteredList<Event> filtered = new FilteredList<>(events, EventDateUtil::isUpcoming);
+        if (keyword == null || keyword.isBlank()) return filtered;
 
         String lower = keyword.toLowerCase();
-
-        filtered.setPredicate(event ->
-                event.getName().toLowerCase().contains(lower) ||
-                event.getLocation().toLowerCase().contains(lower)
-        );
-
+        filtered.setPredicate(e -> EventDateUtil.isUpcoming(e) && matchesKeyword(e, lower));
         return filtered;
+    }
+
+    public Event addEvent(String name, String location, String eventTime,
+                          String regStart, String regEnd, String unit,
+                          String contact, String content, int limit) {
+        String newId = generateNextId();
+        String status = EventStatusUtil.calculate(regStart, regEnd, LocalDateTime.now());
+
+        Event event = new Event(
+                newId, name, location, regStart, regEnd, eventTime,
+                contact, status, unit, content, limit
+        );
+        events.add(event);
+        saveToCSV();
+        return event;
+    }
+
+    public boolean updateEvent(Event event) {
+        for (int i = 0; i < events.size(); i++) {
+            if (events.get(i).getId().equals(event.getId())) {
+                event.setStatus(EventStatusUtil.calculate(
+                        event.getRegStart(), event.getRegEnd(), LocalDateTime.now()));
+                events.set(i, event);
+                saveToCSV();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean deleteEvent(String id) {
+        boolean removed = events.removeIf(e -> e.getId().equals(id));
+        if (removed) saveToCSV();
+        return removed;
+    }
+
+    public boolean isOrganizerOf(Event event, String organizerId) {
+        return event != null && organizerId != null
+                && organizerId.equals(event.getContact());
+    }
+
+    private String generateNextId() {
+        int max = 0;
+        for (Event e : events) {
+            try {
+                max = Math.max(max, Integer.parseInt(e.getId()));
+            } catch (Exception ignored) {}
+        }
+        return String.valueOf(max + 1);
+    }
+
+    private void saveToCSV() {
+        try {
+            List<String[]> rows = new ArrayList<>();
+            for (Event e : events) {
+                String datastart = LocalDate.now().toString().replace("-", "/");
+                rows.add(new String[]{
+                        e.getId(), e.getName(), e.getLocation(), e.getContent(),
+                        e.getEventTime(), e.getRegStart(), e.getRegEnd(),
+                        e.getUnit(), e.getContact(), String.valueOf(e.getLimit()), datastart
+                });
+            }
+            CsvUtil.writeAll(filePath,
+                    "activityID,activityName,location,Content,activityTime,registrationStart,registrationEnd,unit,contact,limit,datastart",
+                    rows);
+        } catch (DataLoadException ex) {
+            System.out.println("❌ 儲存活動 CSV 失敗: " + ex.getMessage());
+        }
     }
 }

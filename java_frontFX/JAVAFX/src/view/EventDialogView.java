@@ -22,6 +22,7 @@ public class EventDialogView {
         Label regTime  = new Label("📝 報名時間：" + e.getRegTime());
         Label contact  = new Label("👤 聯絡人：" + e.getContact());
         Label status   = new Label("📊 狀態：" + e.getStatus());
+        Label limit    = new Label("👥 人數限制：" + (e.getLimit() > 0 ? e.getLimit() + " 人" : "不限"));
 
         String labelStyle = "-fx-font-size: 14px;";
         location.setStyle(labelStyle);
@@ -30,6 +31,7 @@ public class EventDialogView {
         regTime.setStyle(labelStyle);
         contact.setStyle(labelStyle);
         status.setStyle(labelStyle);
+        limit.setStyle(labelStyle);
 
         TextArea detail = new TextArea(e.getContent());
         detail.setWrapText(true);
@@ -43,6 +45,7 @@ public class EventDialogView {
                 regTime,
                 contact,
                 status,
+                limit,
                 new Label("📋 詳細內容："),
                 detail
         );

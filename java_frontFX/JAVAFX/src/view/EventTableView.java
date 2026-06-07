@@ -17,22 +17,11 @@ public class EventTableView {
 
     public static TableView<Event> create(
             ObservableList<Event> data,
-            Consumer<Event> onRegister,
             Consumer<Event> onDetail
     ) {
-
         TableView<Event> table = new TableView<>();
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
-        // ================= 樣式 =================
-        table.setStyle(
-                "-fx-background-color: transparent;" +
-                "-fx-control-inner-background: #ffffff;" +
-                "-fx-control-inner-background-alt: #f8fafc;" +
-                "-fx-font-size: 14px;"
-        );
-
-        // ================= Columns =================
         TableColumn<Event, String> colName = new TableColumn<>("活動名稱");
         colName.setCellValueFactory(new PropertyValueFactory<>("name"));
 
@@ -42,64 +31,53 @@ public class EventTableView {
         TableColumn<Event, String> colTime = new TableColumn<>("活動時間");
         colTime.setCellValueFactory(new PropertyValueFactory<>("eventTime"));
 
+        TableColumn<Event, String> colUnit = new TableColumn<>("主辦單位");
+        colUnit.setCellValueFactory(new PropertyValueFactory<>("unit"));
+
         TableColumn<Event, String> colStatus = new TableColumn<>("狀態");
         colStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
+        colStatus.setCellFactory(col -> new TableCell<>() {
+            @Override
+            protected void updateItem(String status, boolean empty) {
+                super.updateItem(status, empty);
+                if (empty || status == null) {
+                    setText(null);
+                    setStyle("");
+                    return;
+                }
+                setText(status);
+                getStyleClass().removeAll("status-open", "status-closed", "status-pending");
+                if (status.contains("報名中")) getStyleClass().add("status-open");
+                else if (status.contains("結束")) getStyleClass().add("status-closed");
+                else getStyleClass().add("status-pending");
+            }
+        });
 
-        // ================= 操作欄 =================
         TableColumn<Event, Void> colAction = new TableColumn<>("操作");
-
         colAction.setCellFactory(param -> new TableCell<>() {
-
-            private final Button btn = new Button("報名");
+            private final Button btn = new Button("查看詳情");
 
             {
-                btn.setStyle(
-                        "-fx-background-color: #0a5338; -fx-text-fill: white;" +
-                        "-fx-font-size: 13px; -fx-background-radius: 6; -fx-cursor: hand;");
-
-                btn.setOnAction(e -> {
-                    Event event = getTableView().getItems().get(getIndex());
-                    onRegister.accept(event);
-                });
+                btn.getStyleClass().add("btn-primary");
+                btn.setOnAction(e -> onDetail.accept(getTableView().getItems().get(getIndex())));
             }
 
             @Override
             protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);
-
                 if (empty) {
                     setGraphic(null);
                     return;
                 }
-
-                Event event = getTableView().getItems().get(getIndex());
-
-                if ("⛔ 已結束".equals(event.getStatus())) {
-                    btn.setText("已結束");
-                    btn.setDisable(true);
-                    btn.setStyle("-fx-background-color: #d1d5db; -fx-text-fill: #6b7280; -fx-font-size: 13px; -fx-background-radius: 6;");
-                } else if ("尚未開始".equals(event.getStatus())) {
-                    btn.setText("未開始");
-                    btn.setDisable(true);
-                    btn.setStyle("-fx-background-color: #d1d5db; -fx-text-fill: #6b7280; -fx-font-size: 13px; -fx-background-radius: 6;");
-                } else {
-                    btn.setText("報名");
-                    btn.setDisable(false);
-                    btn.setStyle(
-                            "-fx-background-color: #0a5338; -fx-text-fill: white;" +
-                            "-fx-font-size: 13px; -fx-background-radius: 6; -fx-cursor: hand;");
-                }
-
                 HBox box = new HBox(btn);
                 box.setAlignment(Pos.CENTER);
                 setGraphic(box);
             }
         });
 
-        table.getColumns().addAll(colName, colLocation, colTime, colStatus, colAction);
+        table.getColumns().addAll(colName, colLocation, colTime, colUnit, colStatus, colAction);
         table.setItems(data);
 
-        // ================= 雙擊顯示詳細 =================
         table.setRowFactory(tv -> {
             TableRow<Event> row = new TableRow<>();
             row.setOnMouseClicked(e -> {

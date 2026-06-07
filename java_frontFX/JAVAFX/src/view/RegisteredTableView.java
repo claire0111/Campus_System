@@ -9,82 +9,63 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
-import javafx.scene.shape.Rectangle;
-import model.Registration;
-import service.EventService;
-import service.RegistrationService;
+import javafx.scene.layout.VBox;
 
 import java.util.function.BiConsumer;
 
 public class RegisteredTableView {
 
-    // studentID: 目前登入學生 ID
-    // onCancel: (studentID, activityID) -> void
-    public TableView<Registration> createTable(
-            ObservableList<Registration> data,
+    public TableView<RegistrationRow> createTable(
+            ObservableList<RegistrationRow> data,
             BiConsumer<String, String> onCancel
     ) {
-
-        TableView<Registration> table = new TableView<>();
-
-        // ================= STYLE =================
-        table.setStyle(
-                "-fx-background-color: transparent;" +
-                "-fx-control-inner-background: #ffffff;" +
-                "-fx-control-inner-background-alt: #f8fafc;" +
-                "-fx-table-cell-border-color: #ddd;" +
-                "-fx-padding: 0;" +
-                "-fx-background-radius: 12px;" +
-                "-fx-border-radius: 12px;" +
-                "-fx-border-width: 1px;" +
-                "-fx-border-color: #ddd;" +
-                "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 2);" +
-                "-fx-font-size: 14px;"
-        );
-
-        // ================= ROUND CORNER =================
-        Rectangle clip = new Rectangle();
-        clip.setArcWidth(24);
-        clip.setArcHeight(24);
-        table.setClip(clip);
-        table.layoutBoundsProperty().addListener((obs, oldVal, newVal) -> {
-            clip.setWidth(newVal.getWidth());
-            clip.setHeight(newVal.getHeight());
-        });
-
+        TableView<RegistrationRow> table = new TableView<>();
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
-        // ================= COLUMNS =================
-        TableColumn<Registration, String> colSerial = new TableColumn<>("序號");
+        TableColumn<RegistrationRow, String> colSerial = new TableColumn<>("流水號");
         colSerial.setCellValueFactory(new PropertyValueFactory<>("serialNumber"));
-        colSerial.prefWidthProperty().bind(table.widthProperty().multiply(0.10));
+        colSerial.setPrefWidth(80);
+        colSerial.setStyle("-fx-alignment: CENTER;");
 
-        TableColumn<Registration, String> colActivity = new TableColumn<>("活動 ID");
-        colActivity.setCellValueFactory(new PropertyValueFactory<>("activityID"));
-        colActivity.prefWidthProperty().bind(table.widthProperty().multiply(0.40));
+        TableColumn<RegistrationRow, String> colName = new TableColumn<>("活動名稱");
+        colName.setCellValueFactory(new PropertyValueFactory<>("activityName"));
+        colName.setPrefWidth(220);
 
-        TableColumn<Registration, String> colTime = new TableColumn<>("報名時間");
-        colTime.setCellValueFactory(new PropertyValueFactory<>("registrationTime"));
-        colTime.prefWidthProperty().bind(table.widthProperty().multiply(0.35));
+        TableColumn<RegistrationRow, String> colDetail = new TableColumn<>("詳細資料");
+        colDetail.setCellValueFactory(new PropertyValueFactory<>("detail"));
+        colDetail.setCellFactory(col -> new TableCell<>() {
+            private final Label label = new Label();
 
-        TableColumn<Registration, Void> colAction = new TableColumn<>("操作");
-        colAction.prefWidthProperty().bind(table.widthProperty().multiply(0.15));
+            {
+                label.setWrapText(true);
+                label.setStyle("-fx-font-size: 13px; -fx-text-fill: #334155;");
+            }
 
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setGraphic(null);
+                } else {
+                    label.setText(item);
+                    VBox box = new VBox(label);
+                    box.setAlignment(Pos.CENTER_LEFT);
+                    setGraphic(box);
+                }
+            }
+        });
+
+        TableColumn<RegistrationRow, Void> colAction = new TableColumn<>("操作");
+        colAction.setPrefWidth(110);
         colAction.setCellFactory(param -> new TableCell<>() {
             private final Button btn = new Button("取消報名");
 
             {
-                btn.setStyle(
-                        "-fx-background-color: #ef4444;" +
-                        "-fx-text-fill: white;" +
-                        "-fx-font-size: 12px;" +
-                        "-fx-background-radius: 6; -fx-cursor: hand;");
-
+                btn.getStyleClass().add("btn-danger");
                 btn.setOnAction(e -> {
-                    Registration reg = getTableView().getItems().get(getIndex());
-                    onCancel.accept(reg.getParticipantID(), reg.getActivityID());
-                    // 從表格中即時移除
-                    getTableView().getItems().remove(reg);
+                    RegistrationRow row = getTableView().getItems().get(getIndex());
+                    onCancel.accept(row.getParticipantId(), row.getActivityId());
+                    getTableView().getItems().remove(row);
                 });
             }
 
@@ -101,9 +82,9 @@ public class RegisteredTableView {
             }
         });
 
-        table.getColumns().addAll(colSerial, colActivity, colTime, colAction);
+        table.getColumns().addAll(colSerial, colName, colDetail, colAction);
         table.setItems(data);
-
+        table.setFixedCellSize(-1);
         return table;
     }
 }

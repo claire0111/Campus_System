@@ -1,60 +1,352 @@
+/* ===== 全域 ===== */
+.root {
+    -fx-font-family: "Microsoft JhengHei", "Segoe UI", sans-serif;
+    -fx-background-color: #f8fafc;
+}
 
-/* 1. 表頭深綠色背景，並設定高度來模擬 padding: 12px */
+.app-root {
+    -fx-background-color: #f8fafc;
+}
+
+.content-area {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+/* ===== 導覽列 ===== */
+.navbar {
+    -fx-background-color: linear-gradient(to right, #d6f9d6, #ecfdf5);
+    -fx-padding: 12 28;
+    -fx-alignment: center-left;
+    -fx-min-height: 72px;
+    -fx-effect: dropshadow(three-pass-box, rgba(10,83,56,0.12), 12, 0, 0, 3);
+}
+
+.brand-icon {
+    -fx-font-size: 28px;
+    -fx-background-color: #0a5338;
+    -fx-background-radius: 50%;
+    -fx-min-width: 48px;
+    -fx-min-height: 48px;
+    -fx-max-width: 48px;
+    -fx-max-height: 48px;
+    -fx-alignment: center;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.brand-title {
+    -fx-font-size: 24px;
+    -fx-text-fill: #08643c;
+    -fx-font-weight: bold;
+}
+
+.brand-title-only {
+    -fx-font-size: 26px;
+    -fx-padding: 4 0;
+}
+
+.nav-link {
+    -fx-text-fill: #0a5338;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-underline: false;
+    -fx-padding: 6 12;
+    -fx-background-radius: 8;
+}
+
+.nav-link:hover {
+    -fx-background-color: rgba(10,83,56,0.1);
+    -fx-underline: false;
+}
+
+/* ===== 頁面標題 ===== */
+.page-title {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1e293b;
+    -fx-padding: 16 28 8 28;
+}
+
+.page-subtitle {
+    -fx-font-size: 13px;
+    -fx-text-fill: #64748b;
+    -fx-padding: 0 28 8 28;
+}
+
+/* ===== 搜尋區 ===== */
+.search-panel {
+    -fx-background-color: white;
+    -fx-background-radius: 16;
+    -fx-padding: 24 28;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.06), 14, 0, 0, 2);
+    -fx-margin: 0 20 12 20;
+}
+
+.search-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #0a5338;
+}
+
+.search-field {
+    -fx-padding: 10 14;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-color: #a7f3d0;
+    -fx-border-width: 1.5;
+    -fx-font-size: 14px;
+    -fx-background-color: #fafffe;
+}
+
+.search-field:focused {
+    -fx-border-color: #0a5338;
+    -fx-effect: dropshadow(three-pass-box, rgba(10,83,56,0.15), 6, 0, 0, 0);
+}
+
+.sort-combo {
+    -fx-background-radius: 10;
+    -fx-border-color: #a7f3d0;
+    -fx-border-radius: 10;
+    -fx-font-size: 13px;
+}
+
+/* ===== 按鈕 ===== */
+.btn-primary {
+    -fx-background-color: #0a5338;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 10;
+    -fx-padding: 10 22;
+    -fx-cursor: hand;
+}
+
+.btn-primary:hover {
+    -fx-background-color: #08643c;
+}
+
+.btn-primary:disabled {
+    -fx-background-color: #d1d5db;
+    -fx-text-fill: #6b7280;
+    -fx-cursor: default;
+}
+
+.btn-secondary {
+    -fx-background-color: #64748b;
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-padding: 6 14;
+    -fx-cursor: hand;
+}
+
+.btn-secondary:hover {
+    -fx-background-color: #475569;
+}
+
+.btn-danger {
+    -fx-background-color: #ef4444;
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-padding: 6 14;
+    -fx-cursor: hand;
+}
+
+.btn-danger:hover {
+    -fx-background-color: #dc2626;
+}
+
+.btn-danger:disabled, .btn-secondary:disabled {
+    -fx-background-color: #d1d5db;
+    -fx-text-fill: #6b7280;
+}
+
+.btn-ghost {
+    -fx-background-color: transparent;
+    -fx-text-fill: #0a5338;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+}
+
+.btn-ghost:hover {
+    -fx-underline: true;
+}
+
+.btn-outline {
+    -fx-background-color: transparent;
+    -fx-text-fill: #64748b;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+}
+
+/* ===== 登入頁 ===== */
+.login-panel {
+    -fx-padding: 60;
+    -fx-alignment: center;
+    -fx-spacing: 20;
+}
+
+.login-card {
+    -fx-background-color: white;
+    -fx-background-radius: 20;
+    -fx-padding: 48 56;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 20, 0, 0, 4);
+    -fx-max-width: 420;
+    -fx-alignment: center;
+    -fx-spacing: 18;
+}
+
+.login-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #0a5338;
+}
+
+.login-label {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #334155;
+}
+
+.login-field {
+    -fx-padding: 10 14;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-color: #e2e8f0;
+    -fx-max-width: 300;
+    -fx-font-size: 14px;
+}
+
+.login-field:focused {
+    -fx-border-color: #0a5338;
+}
+
+/* ===== 詳情頁 ===== */
+.detail-page {
+    -fx-padding: 16 28 28 28;
+    -fx-spacing: 12;
+}
+
+.detail-card {
+    -fx-background-color: white;
+    -fx-background-radius: 16;
+    -fx-padding: 28;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.07), 16, 0, 0, 3);
+    -fx-spacing: 10;
+}
+
+.detail-title {
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1e293b;
+}
+
+.detail-label {
+    -fx-font-size: 14px;
+    -fx-text-fill: #334155;
+}
+
+.detail-content {
+    -fx-font-size: 14px;
+    -fx-control-inner-background: #f8fafc;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-color: #e2e8f0;
+}
+
+.status-open {
+    -fx-text-fill: #059669;
+    -fx-font-weight: bold;
+}
+
+.status-closed {
+    -fx-text-fill: #dc2626;
+    -fx-font-weight: bold;
+}
+
+.status-pending {
+    -fx-text-fill: #d97706;
+    -fx-font-weight: bold;
+}
+
+/* ===== 管理頁 ===== */
+.admin-header {
+    -fx-padding: 0 20 0 20;
+    -fx-spacing: 10;
+}
+
+.table-wrapper {
+    -fx-padding: 8 20 20 20;
+}
+
+/* ===== 表格 ===== */
+.table-view {
+    -fx-background-color: transparent;
+    -fx-control-inner-background: #ffffff;
+    -fx-control-inner-background-alt: #f8fafc;
+    -fx-font-size: 14px;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 2);
+}
+
 .table-view .column-header,
 .table-view .column-header-background .filler {
-    background-color: #0a5338; 
-    -fx-background-color: #0a5338; 
-    
-    size: 45px;
-    -fx-size: 45px; 
-    
-    border-color: transparent transparent #ddd transparent;
-    -fx-border-color: transparent transparent #ddd transparent;
+    -fx-background-color: #0a5338;
+    -fx-size: 46px;
+    -fx-border-color: transparent transparent #0d6b48 transparent;
 }
 
-/* 表頭文字變白、加粗、置中 */
 .table-view .column-header .label {
-    font-weight: bold; 
     -fx-font-weight: bold;
-    
     -fx-text-fill: white;
-    -fx-alignment: center; 
+    -fx-alignment: center;
+    -fx-font-size: 13px;
 }
 
-/* 2. 儲存格完全依照你的 CSS 距離設定 */
-.table-view .table-cell {
-    padding: 12px;
-    -fx-padding: 12px 12px 12px 12px; 
-    
-    border-color: transparent transparent #ddd transparent; 
-    -fx-border-color: transparent transparent #ddd transparent;
-    
-    -fx-alignment: center; /* 文字置中 */
-}
-
-/* 3. 修正：當表格列(Row)內含按鈕時，避免預設的 padding 疊加導致高度爆開 */
-.table-view .table-row-cell {
-    size: 50px; 
-    -fx-cell-size: 50px; /* 📊 固定每一行基本高度 */
-}
-
-/* 4. 移除點擊表頭時出現的藍色邊框 */
 .table-view .column-header:focused {
-    background-color: #0a5338; 
     -fx-background-color: #0a5338;
 }
 
-/* 5. 自訂使用者點擊選取某一列（Row）時的背景顏色 */
-.table-view .table-row-cell:selected {
-    background-color: rgb(214,249,214); 
-    -fx-background-color: rgb(214,249,214); 
-    
-    color: #0a5338; 
-    -fx-text-fill: #0a5338; 
+.table-view .table-cell {
+    -fx-padding: 12 10;
+    -fx-border-color: transparent transparent #f1f5f9 transparent;
+    -fx-alignment: center-left;
 }
 
-/* 確保表格內的文字元件（Label）也同步強制使用深綠色 */
-.table-view .table-row-cell:selected .table-cell {
-    color: #0a5338; 
+.table-view .table-row-cell {
+    -fx-cell-size: 52px;
+}
+
+.table-view .table-row-cell:odd {
+    -fx-background-color: #fafbfc;
+}
+
+.table-view .table-row-cell:selected {
+    -fx-background-color: #d6f9d6;
     -fx-text-fill: #0a5338;
+}
+
+.table-view .table-row-cell:selected .table-cell {
+    -fx-text-fill: #0a5338;
+}
+
+.table-view .table-row-cell:hover {
+    -fx-background-color: #ecfdf5;
+}
+
+/* ===== 表單 Dialog ===== */
+.dialog-pane {
+    -fx-background-color: white;
+}
+
+.hint-text {
+    -fx-font-size: 11px;
+    -fx-text-fill: #94a3b8;
 }

@@ -11,72 +11,77 @@ import java.util.function.BiConsumer;
 
 public class LoginView {
 
-    // 登入首頁：選擇身分
-    public VBox createLoginUI(Runnable onStudent, Runnable onTeacher) {
+    public VBox createLoginUI(Runnable onStudent, Runnable onOrganizer) {
 
-        VBox root = new VBox(20);
-        root.setAlignment(Pos.CENTER);
-        root.setStyle("-fx-padding: 60;");
+        VBox outer = new VBox();
+        outer.getStyleClass().add("login-panel");
+        outer.setAlignment(Pos.CENTER);
 
-        Label title = new Label("請選擇登入身分");
-        title.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #0a5338;");
+        VBox card = new VBox(18);
+        card.getStyleClass().add("login-card");
+        card.setAlignment(Pos.CENTER);
+
+        Label title = new Label("歡迎登入");
+        title.getStyleClass().add("login-title");
+
+        Label hint = new Label("請選擇您的身分");
+        hint.getStyleClass().add("hint-text");
 
         Button studentBtn = new Button("🎓 學生登入");
-        Button teacherBtn = new Button("💼 教職員登入");
+        Button organizerBtn = new Button("🏢 主辦單位登入");
 
-        String btnStyle =
-                "-fx-font-size: 16px; -fx-font-weight: bold;" +
-                "-fx-background-color: #0a5338; -fx-text-fill: white;" +
-                "-fx-background-radius: 10; -fx-padding: 12 40; -fx-cursor: hand;";
-
-        studentBtn.setStyle(btnStyle);
-        teacherBtn.setStyle(btnStyle);
+        studentBtn.getStyleClass().add("btn-primary");
+        organizerBtn.getStyleClass().add("btn-primary");
+        studentBtn.setMaxWidth(280);
+        organizerBtn.setMaxWidth(280);
 
         studentBtn.setOnAction(e -> onStudent.run());
-        teacherBtn.setOnAction(e -> onTeacher.run());
+        organizerBtn.setOnAction(e -> onOrganizer.run());
 
-        root.getChildren().addAll(title, studentBtn, teacherBtn);
-        return root;
+        card.getChildren().addAll(title, hint, studentBtn, organizerBtn);
+        outer.getChildren().add(card);
+        return outer;
     }
 
-    // 登入表單：帳號密碼輸入
-    // onSubmit: (id, password) -> void
     public VBox createLoginForm(String role,
                                 BiConsumer<String, String> onSubmit,
                                 Runnable onBack) {
 
-        VBox root = new VBox(15);
-        root.setAlignment(Pos.CENTER);
-        root.setStyle("-fx-padding: 60;");
+        VBox outer = new VBox();
+        outer.getStyleClass().add("login-panel");
+        outer.setAlignment(Pos.CENTER);
+
+        VBox card = new VBox(14);
+        card.getStyleClass().add("login-card");
+        card.setAlignment(Pos.CENTER);
 
         Label title = new Label(role + " 登入");
-        title.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #0a5338;");
+        title.getStyleClass().add("login-title");
 
         Label idLabel = new Label("帳號");
-        idLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
+        idLabel.getStyleClass().add("login-label");
         TextField idField = new TextField();
         idField.setPromptText("請輸入學號 / 帳號");
-        idField.setMaxWidth(300);
+        idField.getStyleClass().add("login-field");
 
         Label pwdLabel = new Label("密碼");
-        pwdLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
+        pwdLabel.getStyleClass().add("login-label");
         PasswordField pwdField = new PasswordField();
         pwdField.setPromptText("請輸入密碼");
-        pwdField.setMaxWidth(300);
+        pwdField.getStyleClass().add("login-field");
 
         Button submit = new Button("確認登入");
-        submit.setStyle(
-                "-fx-font-size: 15px; -fx-font-weight: bold;" +
-                "-fx-background-color: #0a5338; -fx-text-fill: white;" +
-                "-fx-background-radius: 10; -fx-padding: 10 40; -fx-cursor: hand;");
+        submit.getStyleClass().add("btn-primary");
+        submit.setMaxWidth(280);
 
         Button back = new Button("← 返回");
-        back.setStyle("-fx-background-color: transparent; -fx-text-fill: #64748b; -fx-font-size: 14px; -fx-cursor: hand;");
+        back.getStyleClass().add("btn-outline");
 
         submit.setOnAction(e -> onSubmit.accept(idField.getText().trim(), pwdField.getText()));
         back.setOnAction(e -> onBack.run());
 
-        root.getChildren().addAll(title, idLabel, idField, pwdLabel, pwdField, submit, back);
-        return root;
+        card.getChildren().addAll(title, idLabel, idField, pwdLabel, pwdField, submit, back);
+        outer.getChildren().add(card);
+        return outer;
     }
 }

@@ -24,7 +24,7 @@ public class EventController {
     public boolean handleRegister(Event event) {
         if (!loginService.isLoggedIn()) return false;
         String studentId = loginService.getCurrentUser().getId();
-        return regService.register(studentId, event.getName());
+        return regService.register(studentId, event) == RegistrationService.RegisterResult.SUCCESS;
     }
 
     // 顯示活動詳細

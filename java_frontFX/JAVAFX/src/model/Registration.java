@@ -1,13 +1,13 @@
 package model;
 
+/**
+ * 報名紀錄 — 關聯學生與活動。
+ */
 public class Registration {
-    private User user;
-    private Event event;
-
-    private String serialNumber;
-    private String participantID;
-    private String activityID;
-    private String registrationTime;
+    private final String serialNumber;
+    private final String participantID;
+    private final String activityID;
+    private final String registrationTime;
 
     public Registration(String serialNumber, String participantID,
                         String activityID, String registrationTime) {
