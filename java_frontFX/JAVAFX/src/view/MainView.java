@@ -69,7 +69,7 @@ public class MainView {
 
         showEvents();
 
-        Scene scene = new Scene(root, 1100, 720);
+        Scene scene = new Scene(root, 1920, 1080);
         loadStylesheet(scene);
         return scene;
     }
@@ -94,21 +94,40 @@ public class MainView {
     private void showEvents() {
         eventService.refreshStatus();
 
-        Label title = makeTitle("📋 即將舉行的活動");
-        Label subtitle = makeSubtitle("僅顯示尚未結束的活動，請點擊「查看詳情」進入說明頁後報名");
+        // 英雄橫幅
+        VBox heroBanner = createHeroBanner();
 
         VBox[] searchHolder = new VBox[1];
 
-        VBox search = searchView.create((keyword, sortMode) -> {
+        searchHolder[0] = searchView.create((keyword, sortMode) -> {
             var list = eventService.searchAndSort(keyword, sortMode);
             var table = EventTableView.create(list, this::showEventDetail);
-            centerArea.getChildren().setAll(title, subtitle, searchHolder[0], wrapTable(table));
+            centerArea.getChildren().setAll(heroBanner, searchHolder[0], wrapTable(table));
         });
-        searchHolder[0] = search;
 
         var list = eventService.searchAndSort("", SortMode.EVENT_TIME_ASC);
         var table = EventTableView.create(list, this::showEventDetail);
-        centerArea.getChildren().setAll(title, subtitle, search, wrapTable(table));
+        centerArea.getChildren().setAll(heroBanner, searchHolder[0], wrapTable(table));
+    }
+
+    private VBox createHeroBanner() {
+        VBox banner = new VBox();
+        banner.getStyleClass().add("hero-banner");
+
+        VBox content = new VBox();
+        content.getStyleClass().add("hero-content");
+
+        Label title = new Label("校園活動報名");
+        title.getStyleClass().add("hero-title");
+
+        Label subtitle = new Label("發現、參與、享受校園豐富的學習體驗與社團活動");
+        subtitle.getStyleClass().add("hero-subtitle");
+
+        content.getChildren().addAll(title, subtitle);
+        banner.getChildren().add(content);
+        banner.setMinHeight(280);
+
+        return banner;
     }
 
     private VBox wrapTable(TableView<?> table) {
@@ -141,21 +160,51 @@ public class MainView {
         if (loginService.isOrganizer()) {
             showOrganizerManagement(loginService.getUserId());
         } else {
-            Label title = makeTitle("📝 我的報名清單");
-            Label subtitle = makeSubtitle("您可以在此取消已報名的活動");
+            // 標題橫幅
+            VBox headerBanner = new VBox();
+            headerBanner.getStyleClass().add("hero-banner");
+
+            VBox headerContent = new VBox();
+            headerContent.getStyleClass().add("hero-content");
+
+            Label title = new Label("📝 我的報名清單");
+            title.getStyleClass().add("hero-title");
+
+            Label subtitle = new Label("查看和管理您已報名的校園活動");
+            subtitle.getStyleClass().add("hero-subtitle");
+
+            headerContent.getChildren().addAll(title, subtitle);
+            headerBanner.getChildren().add(headerContent);
+            headerBanner.setMinHeight(240);
+
             VBox tableBox = registrationView.createTable(
                     regService, eventService, loginService.getUserId());
-            centerArea.getChildren().setAll(title, subtitle, tableBox);
+            centerArea.getChildren().setAll(headerBanner, tableBox);
         }
     }
 
     // ================= 主辦單位活動管理 =================
     private void showOrganizerManagement(String organizerId) {
         eventService.refreshStatus();
-        Label title = makeTitle("📂 活動管理");
-        Label subtitle = makeSubtitle("您只能編輯或刪除自己主辦的活動");
 
-        Button createBtn = new Button("+ 建立活動");
+        // 標題橫幅
+        VBox headerBanner = new VBox();
+        headerBanner.getStyleClass().add("hero-banner");
+
+        VBox headerContent = new VBox();
+        headerContent.getStyleClass().add("hero-content");
+
+        Label title = new Label("📂 活動管理");
+        title.getStyleClass().add("hero-title");
+
+        Label subtitle = new Label("您可以在此創建、編輯和管理您主辦的校園活動");
+        subtitle.getStyleClass().add("hero-subtitle");
+
+        headerContent.getChildren().addAll(title, subtitle);
+        headerBanner.getChildren().add(headerContent);
+        headerBanner.setMinHeight(240);
+
+        Button createBtn = new Button("+ 建立新活動");
         createBtn.getStyleClass().add("btn-primary");
         createBtn.setOnAction(e -> EventFormView.showCreate(organizerId, data -> {
             Event created = eventService.addEvent(
@@ -170,8 +219,9 @@ public class MainView {
             showOrganizerManagement(organizerId);
         }));
 
-        VBox header = new VBox(6, title, subtitle, createBtn);
+        VBox header = new VBox(16, createBtn);
         header.getStyleClass().add("admin-header");
+        header.setPadding(new Insets(28, 32, 0, 32));
 
         var table = AdminEventTableView.create(
                 eventService.getEvents(),
@@ -179,7 +229,7 @@ public class MainView {
                 (event, isEdit) -> handleEditOrDelete(event, isEdit, organizerId),
                 this::showEventDetail
         );
-        centerArea.getChildren().setAll(header, wrapTable(table));
+        centerArea.getChildren().setAll(headerBanner, header, wrapTable(table));
     }
 
     private void handleEditOrDelete(Event event, boolean isEdit, String organizerId) {

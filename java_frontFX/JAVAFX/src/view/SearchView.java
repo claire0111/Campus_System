@@ -18,16 +18,19 @@ public class SearchView {
 
     public VBox create(BiConsumer<String, EventService.SortMode> onSearch) {
 
-        VBox heroSearch = new VBox(14);
+        VBox heroSearch = new VBox(16);
         heroSearch.getStyleClass().add("search-panel");
         heroSearch.setMaxWidth(Double.MAX_VALUE);
+        heroSearch.setAlignment(Pos.CENTER);
 
         Label title = new Label("🔍 活動查詢");
         title.getStyleClass().add("search-title");
+        title.setAlignment(Pos.CENTER);
 
         searchField = new TextField();
-        searchField.setPromptText("搜尋活動名稱、地點、主辦單位、內容...");
-        searchField.setPrefWidth(320);
+        searchField.setPromptText("搜尋活動名稱、地點、主辦單位...");
+        searchField.setPrefWidth(500);
+        searchField.setMaxWidth(600);
         searchField.getStyleClass().add("search-field");
 
         sortCombo = new ComboBox<>();
@@ -37,6 +40,7 @@ public class SearchView {
                 "報名開始時間"
         );
         sortCombo.setValue("活動時間（近→遠）");
+        sortCombo.setPrefWidth(180);
         sortCombo.getStyleClass().add("sort-combo");
 
         Button btn = new Button("搜尋");
