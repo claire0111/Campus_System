@@ -7,8 +7,10 @@ import javafx.collections.transformation.FilteredList;
 import model.Event;
 import util.CsvUtil;
 import util.EventDateUtil;
+import util.EventImageUtil;
 import util.EventStatusUtil;
 
+import java.io.File;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -39,16 +41,19 @@ public class EventService {
                 String regStart = data[5];
                 String regEnd = data[6];
                 String status = EventStatusUtil.calculate(regStart, regEnd, now);
+                String imagePath = data.length > 11 ? data[11] : "";
+                String organizerName = data.length > 12 ? data[12] : "";
 
                 list.add(new Event(
                         data[0], data[1], data[2], regStart, regEnd, data[4],
-                        data[8], status, data[7], data[3], parseLimit(data[9])
+                        data[8], status, data[7], data[3], parseLimit(data[9]),
+                        imagePath, organizerName
                 ));
             }
         } catch (DataLoadException e) {
             list.add(new Event(
                     "0", "CSV讀取失敗", "請檢查檔案",
-                    "", "", "", "", "❌ 錯誤", "", e.getMessage(), 0
+                    "", "", "", "", "❌ 錯誤", "", e.getMessage(), 0, "", ""
             ));
         }
 
@@ -71,11 +76,8 @@ public class EventService {
         }
     }
 
-    public ObservableList<Event> getEvents() {
-        return events;
-    }
+    public ObservableList<Event> getEvents() { return events; }
 
-    /** 取得尚未結束的活動（即將舉行或進行中） */
     public ObservableList<Event> getUpcomingEvents() {
         ObservableList<Event> upcoming = FXCollections.observableArrayList();
         for (Event e : events) {
@@ -91,7 +93,6 @@ public class EventService {
         return null;
     }
 
-    /** 依活動 ID 或活動名稱查找（相容舊報名資料） */
     public Event findByActivityRef(String ref) {
         if (ref == null || ref.isBlank()) return null;
         Event byId = getById(ref);
@@ -104,7 +105,6 @@ public class EventService {
 
     public ObservableList<Event> searchAndSort(String keyword, SortMode sortMode) {
         String lower = (keyword == null || keyword.isBlank()) ? null : keyword.toLowerCase();
-
         ObservableList<Event> result = FXCollections.observableArrayList();
         for (Event e : events) {
             if (!EventDateUtil.isUpcoming(e)) continue;
@@ -120,7 +120,8 @@ public class EventService {
                 || event.getLocation().toLowerCase().contains(lower)
                 || event.getUnit().toLowerCase().contains(lower)
                 || event.getContent().toLowerCase().contains(lower)
-                || event.getContact().toLowerCase().contains(lower);
+                || event.getContact().toLowerCase().contains(lower)
+                || event.getOrganizerName().toLowerCase().contains(lower);
     }
 
     public void sortEvents(ObservableList<Event> list, SortMode mode) {
@@ -141,7 +142,6 @@ public class EventService {
     public FilteredList<Event> search(String keyword) {
         FilteredList<Event> filtered = new FilteredList<>(events, EventDateUtil::isUpcoming);
         if (keyword == null || keyword.isBlank()) return filtered;
-
         String lower = keyword.toLowerCase();
         filtered.setPredicate(e -> EventDateUtil.isUpcoming(e) && matchesKeyword(e, lower));
         return filtered;
@@ -149,20 +149,28 @@ public class EventService {
 
     public Event addEvent(String name, String location, String eventTime,
                           String regStart, String regEnd, String unit,
-                          String contact, String content, int limit) {
+                          String contact, String content, int limit,
+                          String organizerName, File imageFile) {
         String newId = generateNextId();
         String status = EventStatusUtil.calculate(regStart, regEnd, LocalDateTime.now());
+        String imagePath = imageFile != null ? EventImageUtil.save(newId, imageFile) : "";
 
         Event event = new Event(
                 newId, name, location, regStart, regEnd, eventTime,
-                contact, status, unit, content, limit
+                contact, status, unit, content, limit, imagePath, organizerName
         );
         events.add(event);
         saveToCSV();
         return event;
     }
 
-    public boolean updateEvent(Event event) {
+    public boolean updateEvent(Event event, File newImageFile) {
+        if (newImageFile != null) {
+            if (event.getImagePath() != null && !event.getImagePath().isBlank()) {
+                EventImageUtil.delete(event.getImagePath());
+            }
+            event.setImagePath(EventImageUtil.save(event.getId(), newImageFile));
+        }
         for (int i = 0; i < events.size(); i++) {
             if (events.get(i).getId().equals(event.getId())) {
                 event.setStatus(EventStatusUtil.calculate(
@@ -175,7 +183,15 @@ public class EventService {
         return false;
     }
 
+    public boolean updateEvent(Event event) {
+        return updateEvent(event, null);
+    }
+
     public boolean deleteEvent(String id) {
+        Event target = getById(id);
+        if (target != null) {
+            EventImageUtil.delete(target.getImagePath());
+        }
         boolean removed = events.removeIf(e -> e.getId().equals(id));
         if (removed) saveToCSV();
         return removed;
@@ -204,11 +220,12 @@ public class EventService {
                 rows.add(new String[]{
                         e.getId(), e.getName(), e.getLocation(), e.getContent(),
                         e.getEventTime(), e.getRegStart(), e.getRegEnd(),
-                        e.getUnit(), e.getContact(), String.valueOf(e.getLimit()), datastart
+                        e.getUnit(), e.getContact(), String.valueOf(e.getLimit()), datastart,
+                        e.getImagePath(), e.getOrganizerName()
                 });
             }
             CsvUtil.writeAll(filePath,
-                    "activityID,activityName,location,Content,activityTime,registrationStart,registrationEnd,unit,contact,limit,datastart",
+                    "activityID,activityName,location,Content,activityTime,registrationStart,registrationEnd,unit,contact,limit,datastart,imagePath,organizerName",
                     rows);
         } catch (DataLoadException ex) {
             System.out.println("❌ 儲存活動 CSV 失敗: " + ex.getMessage());

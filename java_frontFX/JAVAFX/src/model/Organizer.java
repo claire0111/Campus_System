@@ -3,15 +3,14 @@ package model;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * 主辦單位 — 可建立、編輯與管理活動。
- */
 public class Organizer extends User {
 
+    private final String unit;
     private final List<String> hostedActivityIds = new ArrayList<>();
 
-    public Organizer(String id, String name) {
+    public Organizer(String id, String name, String unit) {
         super(id, name);
+        this.unit = unit != null ? unit : "";
     }
 
     @Override
@@ -19,6 +18,8 @@ public class Organizer extends User {
 
     @Override
     public boolean isOrganizer() { return true; }
+
+    public String getUnit() { return unit; }
 
     @Override
     public void displayMenu() {

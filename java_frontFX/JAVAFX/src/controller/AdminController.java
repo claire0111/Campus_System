@@ -7,9 +7,6 @@ import service.LoginService;
 import service.RegistrationService;
 import view.EventFormView;
 
-/**
- * 主辦單位活動管理控制器。
- */
 public class AdminController {
 
     private final EventService eventService;
@@ -25,18 +22,16 @@ public class AdminController {
     }
 
     public void createEvent(Runnable onSuccess) {
-        if (!loginService.isOrganizer()) return;
+        if (!(loginService.getCurrentUser() instanceof Organizer organizer)) return;
 
-        String organizerId = loginService.getUserId();
-        EventFormView.showCreate(organizerId, data -> {
+        EventFormView.showCreate(organizer, data -> {
             Event created = eventService.addEvent(
                     data.name, data.location, data.eventTime,
                     data.regStart, data.regEnd, data.unit,
-                    data.contact, data.content, data.limit
+                    data.contact, data.content, data.limit,
+                    data.organizerName, data.imageFile
             );
-            if (loginService.getCurrentUser() instanceof Organizer org) {
-                org.trackHostedEvent(created.getId());
-            }
+            organizer.trackHostedEvent(created.getId());
             onSuccess.run();
         });
     }

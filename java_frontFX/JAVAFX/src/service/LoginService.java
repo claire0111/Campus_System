@@ -85,7 +85,8 @@ public class LoginService {
             for (String[] data : rows) {
                 if (data.length < 3) continue;
                 if (data[0].equals(id) && data[2].equals(pwd)) {
-                    return new Organizer(data[0], data[1]);
+                    String unit = data.length > 5 ? data[5] : "";
+                    return new Organizer(data[0], data[1], unit);
                 }
             }
         } catch (DataLoadException e) {

@@ -1,5 +1,6 @@
 package view;
 
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -7,8 +8,11 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
-import javafx.scene.control.TableView;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import model.Event;
@@ -69,7 +73,8 @@ public class MainView {
 
         showEvents();
 
-        Scene scene = new Scene(root, 1920, 1080);
+        // 設置視窗為 1024x680
+        Scene scene = new Scene(root, 1024, 680);
         loadStylesheet(scene);
         return scene;
     }
@@ -90,51 +95,84 @@ public class MainView {
         }
     }
 
-    // ================= 顯示活動列表 =================
+    // ================= 顯示活動列表 (卡片格線樣式) =================
     private void showEvents() {
         eventService.refreshStatus();
 
-        // 英雄橫幅
-        VBox heroBanner = createHeroBanner();
+        if (navbarView != null) {
+            navbarView.setActiveMenu(1);
+        }
 
-        VBox[] searchHolder = new VBox[1];
+        VBox cardsBox = new VBox();
+        cardsBox.getStyleClass().add("cards-container");
+        VBox.setVgrow(cardsBox, Priority.ALWAYS);
 
-        searchHolder[0] = searchView.create((keyword, sortMode) -> {
+        // 建立搜尋面板，當使用者點擊搜尋、排序變更時會觸發回呼
+        VBox searchPanel = searchView.create((keyword, sortMode) -> {
             var list = eventService.searchAndSort(keyword, sortMode);
-            var table = EventTableView.create(list, this::showEventDetail);
-            centerArea.getChildren().setAll(heroBanner, searchHolder[0], wrapTable(table));
+            cardsBox.getChildren().setAll(renderCardGrid(list));
         });
+        searchPanel.setMaxWidth(800);
 
-        var list = eventService.searchAndSort("", SortMode.EVENT_TIME_ASC);
-        var table = EventTableView.create(list, this::showEventDetail);
-        centerArea.getChildren().setAll(heroBanner, searchHolder[0], wrapTable(table));
-    }
+        // 建立 Hero Section (包含文字 Slogan 與浮動的 glassmorphic 搜尋面板)
+        VBox heroBanner = new VBox(14);
+        heroBanner.getStyleClass().add("hero-banner");
+        heroBanner.setAlignment(Pos.CENTER);
+        heroBanner.setMinHeight(200);
+        heroBanner.setPadding(new Insets(20, 20, 20, 20));
 
-    private VBox createHeroBanner() {
-        VBox banner = new VBox();
-        banner.getStyleClass().add("hero-banner");
-
-        VBox content = new VBox();
-        content.getStyleClass().add("hero-content");
-
-        Label title = new Label("校園活動報名");
+        Label title = new Label("Discover. Engage. Excel.");
         title.getStyleClass().add("hero-title");
 
-        Label subtitle = new Label("發現、參與、享受校園豐富的學習體驗與社團活動");
+        Label subtitle = new Label("Your YunTech Journey Starts Here.");
         subtitle.getStyleClass().add("hero-subtitle");
 
-        content.getChildren().addAll(title, subtitle);
-        banner.getChildren().add(content);
-        banner.setMinHeight(280);
+        heroBanner.getChildren().addAll(title, subtitle, searchPanel);
 
-        return banner;
+        // 預設載入活動
+        var list = eventService.searchAndSort("", SortMode.EVENT_TIME_ASC);
+        cardsBox.getChildren().setAll(renderCardGrid(list));
+
+        // 使用 ScrollPane 讓整個頁面（包含 Hero 與卡片）可以滾動
+        ScrollPane scroll = new ScrollPane();
+        scroll.setFitToWidth(true);
+        scroll.setPannable(true);
+        scroll.getStyleClass().add("main-scroll-pane");
+        scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+
+        VBox scrollContent = new VBox(20);
+        scrollContent.setStyle("-fx-background-color: #f8fafc;");
+        scrollContent.getChildren().addAll(heroBanner, cardsBox);
+        scroll.setContent(scrollContent);
+        VBox.setVgrow(scroll, Priority.ALWAYS);
+
+        centerArea.getChildren().setAll(scroll);
     }
 
-    private VBox wrapTable(TableView<?> table) {
-        VBox wrapper = new VBox(table);
-        wrapper.getStyleClass().add("table-wrapper");
-        VBox.setVgrow(table, Priority.ALWAYS);
-        return wrapper;
+    private GridPane renderCardGrid(ObservableList<Event> list) {
+        GridPane grid = new GridPane();
+        grid.getStyleClass().add("activity-grid");
+        grid.setAlignment(Pos.TOP_CENTER);
+
+        if (list.isEmpty()) {
+            Label noEvents = new Label("沒有找到符合條件的活動");
+            noEvents.setStyle("-fx-font-size: 16px; -fx-text-fill: #64748b; -fx-padding: 40;");
+            grid.add(noEvents, 0, 0);
+            return grid;
+        }
+
+        int columns = 3;
+        for (int i = 0; i < list.size(); i++) {
+            Event event = list.get(i);
+            VBox card = ActivityCardView.create(
+                    event, loginService, regService, this::showEventDetail, this::handleRegister
+            );
+            int row = i / columns;
+            int col = i % columns;
+            grid.add(card, col, row);
+        }
+        return grid;
     }
 
     // ================= 活動詳細說明頁 =================
@@ -157,29 +195,42 @@ public class MainView {
             return;
         }
 
+        if (navbarView != null) {
+            navbarView.setActiveMenu(2);
+        }
+
         if (loginService.isOrganizer()) {
             showOrganizerManagement(loginService.getUserId());
         } else {
             // 標題橫幅
             VBox headerBanner = new VBox();
             headerBanner.getStyleClass().add("hero-banner");
+            headerBanner.setAlignment(Pos.CENTER);
+            headerBanner.setMinHeight(130);
 
-            VBox headerContent = new VBox();
-            headerContent.getStyleClass().add("hero-content");
+            VBox headerContent = new VBox(8);
+            headerContent.setAlignment(Pos.CENTER);
 
-            Label title = new Label("📝 我的報名清單");
+            Label title = new Label("Student Dashboard");
             title.getStyleClass().add("hero-title");
+            title.setStyle("-fx-font-size: 32px;");
 
-            Label subtitle = new Label("查看和管理您已報名的校園活動");
+            Label subtitle = new Label("My Registered Activities");
             subtitle.getStyleClass().add("hero-subtitle");
 
             headerContent.getChildren().addAll(title, subtitle);
             headerBanner.getChildren().add(headerContent);
-            headerBanner.setMinHeight(240);
 
             VBox tableBox = registrationView.createTable(
                     regService, eventService, loginService.getUserId());
-            centerArea.getChildren().setAll(headerBanner, tableBox);
+            
+            // 使用滾動包裝
+            ScrollPane scroll = new ScrollPane(tableBox);
+            scroll.setFitToWidth(true);
+            scroll.getStyleClass().add("main-scroll-pane");
+            VBox.setVgrow(scroll, Priority.ALWAYS);
+
+            centerArea.getChildren().setAll(headerBanner, scroll);
         }
     }
 
@@ -187,41 +238,49 @@ public class MainView {
     private void showOrganizerManagement(String organizerId) {
         eventService.refreshStatus();
 
+        if (navbarView != null) {
+            navbarView.setActiveMenu(2);
+        }
+
         // 標題橫幅
         VBox headerBanner = new VBox();
         headerBanner.getStyleClass().add("hero-banner");
+        headerBanner.setAlignment(Pos.CENTER);
+        headerBanner.setMinHeight(130);
 
-        VBox headerContent = new VBox();
-        headerContent.getStyleClass().add("hero-content");
+        VBox headerContent = new VBox(8);
+        headerContent.setAlignment(Pos.CENTER);
 
-        Label title = new Label("📂 活動管理");
+        Label title = new Label("Organizer Management");
         title.getStyleClass().add("hero-title");
+        title.setStyle("-fx-font-size: 32px;");
 
-        Label subtitle = new Label("您可以在此創建、編輯和管理您主辦的校園活動");
+        Label subtitle = new Label("Create, edit and manage hosted activities");
         subtitle.getStyleClass().add("hero-subtitle");
 
         headerContent.getChildren().addAll(title, subtitle);
         headerBanner.getChildren().add(headerContent);
-        headerBanner.setMinHeight(240);
 
         Button createBtn = new Button("+ 建立新活動");
         createBtn.getStyleClass().add("btn-primary");
-        createBtn.setOnAction(e -> EventFormView.showCreate(organizerId, data -> {
-            Event created = eventService.addEvent(
-                    data.name, data.location, data.eventTime,
-                    data.regStart, data.regEnd, data.unit,
-                    data.contact, data.content, data.limit
-            );
-            if (loginService.getCurrentUser() instanceof Organizer org) {
-                org.trackHostedEvent(created.getId());
-            }
-            showAlert("建立成功", "活動「" + data.name + "」已建立！");
-            showOrganizerManagement(organizerId);
-        }));
+        createBtn.setOnAction(e -> {
+            if (!(loginService.getCurrentUser() instanceof Organizer organizer)) return;
+            EventFormView.showCreate(organizer, data -> {
+                Event created = eventService.addEvent(
+                        data.name, data.location, data.eventTime,
+                        data.regStart, data.regEnd, data.unit,
+                        data.contact, data.content, data.limit,
+                        data.organizerName, data.imageFile
+                );
+                organizer.trackHostedEvent(created.getId());
+                showAlert("建立成功", "活動「" + data.name + "」已建立！");
+                showOrganizerManagement(organizerId);
+            });
+        });
 
         VBox header = new VBox(16, createBtn);
         header.getStyleClass().add("admin-header");
-        header.setPadding(new Insets(28, 32, 0, 32));
+        header.setPadding(new Insets(20, 32, 0, 32));
 
         var table = AdminEventTableView.create(
                 eventService.getEvents(),
@@ -229,7 +288,20 @@ public class MainView {
                 (event, isEdit) -> handleEditOrDelete(event, isEdit, organizerId),
                 this::showEventDetail
         );
-        centerArea.getChildren().setAll(headerBanner, header, wrapTable(table));
+
+        VBox tableBox = new VBox(table);
+        tableBox.getStyleClass().add("table-wrapper");
+        VBox.setVgrow(table, Priority.ALWAYS);
+
+        VBox contentBox = new VBox(header, tableBox);
+        VBox.setVgrow(contentBox, Priority.ALWAYS);
+
+        ScrollPane scroll = new ScrollPane(contentBox);
+        scroll.setFitToWidth(true);
+        scroll.getStyleClass().add("main-scroll-pane");
+        VBox.setVgrow(scroll, Priority.ALWAYS);
+
+        centerArea.getChildren().setAll(headerBanner, scroll);
     }
 
     private void handleEditOrDelete(Event event, boolean isEdit, String organizerId) {
@@ -239,7 +311,8 @@ public class MainView {
         }
 
         if (isEdit) {
-            EventFormView.showEdit(event, organizerId, data -> {
+            if (!(loginService.getCurrentUser() instanceof Organizer organizer)) return;
+            EventFormView.showEdit(event, organizer, data -> {
                 event.setName(data.name);
                 event.setLocation(data.location);
                 event.setEventTime(data.eventTime);
@@ -248,7 +321,8 @@ public class MainView {
                 event.setUnit(data.unit);
                 event.setContent(data.content);
                 event.setLimit(data.limit);
-                eventService.updateEvent(event);
+                event.setOrganizerName(data.organizerName);
+                eventService.updateEvent(event, data.imageFile);
                 showAlert("更新成功", "活動「" + data.name + "」已更新！");
                 showOrganizerManagement(organizerId);
             });
@@ -282,6 +356,9 @@ public class MainView {
     }
 
     private void showLoginPage() {
+        if (navbarView != null) {
+            navbarView.setActiveMenu(3);
+        }
         centerArea.getChildren().setAll(
                 loginView.createLoginUI(
                         () -> showLoginForm("學生"),
@@ -339,21 +416,6 @@ public class MainView {
             case FULL -> showAlert("名額已滿", "此活動報名人數已達上限，無法報名。");
             case CLOSED -> showAlert("無法報名", "目前不在報名期間內。");
         }
-    }
-
-    private Label makeTitle(String text) {
-        Label lbl = new Label(text);
-        lbl.getStyleClass().add("page-title");
-        lbl.setMaxWidth(Double.MAX_VALUE);
-        lbl.setAlignment(Pos.CENTER_LEFT);
-        return lbl;
-    }
-
-    private Label makeSubtitle(String text) {
-        Label lbl = new Label(text);
-        lbl.getStyleClass().add("page-subtitle");
-        lbl.setMaxWidth(Double.MAX_VALUE);
-        return lbl;
     }
 
     private void showAlert(String title, String msg) {

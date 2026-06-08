@@ -5,12 +5,19 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundImage;
+import javafx.scene.layout.BackgroundPosition;
+import javafx.scene.layout.BackgroundRepeat;
+import javafx.scene.layout.BackgroundSize;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import model.Event;
 import service.LoginService;
 import service.RegistrationService;
+import util.EventImageUtil;
 import util.EventStatusUtil;
 
 import java.time.LocalDateTime;
@@ -35,6 +42,26 @@ public class EventDetailView {
         VBox card = new VBox(10);
         card.getStyleClass().add("detail-card");
 
+        var coverImage = EventImageUtil.loadImage(event.getImagePath());
+        if (coverImage != null) {
+            Region coverRegion = new Region();
+            coverRegion.setPrefSize(520, 220);
+            coverRegion.setMaxWidth(520);
+            coverRegion.setMinHeight(180);
+            coverRegion.setMaxHeight(260);
+            coverRegion.getStyleClass().add("detail-cover-image");
+            coverRegion.setBackground(new Background(
+                    new BackgroundImage(
+                            coverImage,
+                            BackgroundRepeat.NO_REPEAT,
+                            BackgroundRepeat.NO_REPEAT,
+                            BackgroundPosition.CENTER,
+                            new BackgroundSize(100, 100, true, true, false, true)
+                    )
+            ));
+            card.getChildren().add(coverRegion);
+        }
+
         Label title = new Label(event.getName());
         title.getStyleClass().add("detail-title");
 
@@ -46,9 +73,9 @@ public class EventDetailView {
                 title,
                 detailRow("📍 地點", event.getLocation()),
                 detailRow("🏢 主辦單位", event.getUnit()),
+                detailRow("👤 主辦人", event.getOrganizerName()),
                 detailRow("⏰ 活動時間", event.getEventTime()),
                 detailRow("📝 報名時間", event.getRegTime()),
-                detailRow("👤 聯絡人", event.getContact()),
                 statusRow(liveStatus),
                 capacityRow(event, regService)
         );

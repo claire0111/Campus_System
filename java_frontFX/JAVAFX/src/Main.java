@@ -25,6 +25,11 @@ public class Main extends Application {
 
         stage.setTitle("校園活動管理系統");
         stage.setScene(scene);
+        stage.setFullScreen(false);
+        stage.setMaximized(false);
+        stage.setWidth(1024);
+        stage.setHeight(680);
+        stage.centerOnScreen();
         stage.show();
     }
 

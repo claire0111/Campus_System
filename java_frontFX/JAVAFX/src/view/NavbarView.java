@@ -8,7 +8,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
-import javafx.scene.shape.Circle;
 
 import java.net.URL;
 import java.nio.file.Files;
@@ -23,6 +22,7 @@ public class NavbarView {
             "src/images/yuntech.png"
     };
 
+    private Hyperlink menu1;
     private Hyperlink menu2;
     private Hyperlink menu3;
 
@@ -30,12 +30,13 @@ public class NavbarView {
 
         HBox navbar = new HBox(25);
         navbar.getStyleClass().add("navbar");
+        navbar.setAlignment(Pos.CENTER_LEFT);
 
         HBox brandSection = new HBox(14);
         brandSection.setAlignment(Pos.CENTER_LEFT);
         buildBrandSection(brandSection);
 
-        Hyperlink menu1 = new Hyperlink("活動列表");
+        menu1 = new Hyperlink("活動列表");
         menu2 = new Hyperlink("我的報名");
         menu3 = new Hyperlink("登入");
 
@@ -43,18 +44,44 @@ public class NavbarView {
             link.getStyleClass().add("nav-link");
         }
 
-        menu1.setOnAction(e -> onList.run());
-        menu2.setOnAction(e -> onMy.run());
-        menu3.setOnAction(e -> onLogin.run());
+        menu1.setOnAction(e -> {
+            setActiveMenu(1);
+            onList.run();
+        });
+        menu2.setOnAction(e -> {
+            setActiveMenu(2);
+            onMy.run();
+        });
+        menu3.setOnAction(e -> {
+            setActiveMenu(3);
+            onLogin.run();
+        });
+
+        // 預設將第一個選單（活動列表）設為 active
+        setActiveMenu(1);
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        HBox menuBox = new HBox(8, menu1, menu2, menu3);
+        HBox menuBox = new HBox(12, menu1, menu2, menu3);
         menuBox.setAlignment(Pos.CENTER_RIGHT);
 
         navbar.getChildren().addAll(brandSection, spacer, menuBox);
         return navbar;
+    }
+
+    public void setActiveMenu(int index) {
+        if (menu1 != null) menu1.getStyleClass().remove("active");
+        if (menu2 != null) menu2.getStyleClass().remove("active");
+        if (menu3 != null) menu3.getStyleClass().remove("active");
+
+        if (index == 1 && menu1 != null) {
+            menu1.getStyleClass().add("active");
+        } else if (index == 2 && menu2 != null) {
+            menu2.getStyleClass().add("active");
+        } else if (index == 3 && menu3 != null) {
+            menu3.getStyleClass().add("active");
+        }
     }
 
     private void buildBrandSection(HBox brandSection) {
@@ -104,12 +131,9 @@ public class NavbarView {
 
     private ImageView createLogoView(Image image) {
         ImageView logoView = new ImageView(image);
-        logoView.setFitWidth(45);
+        // 不做圓形裁切，以維持原本寬型 Logo 的樣式
         logoView.setFitHeight(45);
         logoView.setPreserveRatio(true);
-
-        Circle clip = new Circle(22.5, 22.5, 22.5);
-        logoView.setClip(clip);
         return logoView;
     }
 

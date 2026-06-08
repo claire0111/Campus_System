@@ -14,6 +14,16 @@
     -fx-padding: 0;
 }
 
+.main-scroll-pane {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-border-color: transparent;
+}
+
+.main-scroll-pane .viewport {
+    -fx-background-color: #f8fafc;
+}
+
 /* ===== 導覽列 ===== */
 .navbar {
     -fx-background-color: #ffffff;
@@ -23,19 +33,6 @@
     -fx-effect: dropshadow(three-pass-box, rgba(10,83,56,0.08), 16, 0, 0, 4);
     -fx-border-color: #f1f5f9;
     -fx-border-width: 0 0 1 0;
-}
-
-.brand-icon {
-    -fx-font-size: 28px;
-    -fx-background-color: #0a5338;
-    -fx-background-radius: 50%;
-    -fx-min-width: 48px;
-    -fx-min-height: 48px;
-    -fx-max-width: 48px;
-    -fx-max-height: 48px;
-    -fx-alignment: center;
-    -fx-text-fill: white;
-    -fx-font-weight: bold;
 }
 
 .brand-title {
@@ -51,18 +48,25 @@
 }
 
 .nav-link {
-    -fx-text-fill: #0a5338;
-    -fx-font-size: 15px;
-    -fx-font-weight: 500;
+    -fx-text-fill: #475569;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
     -fx-underline: false;
-    -fx-padding: 8 16;
-    -fx-background-radius: 10;
+    -fx-padding: 8 20;
+    -fx-background-radius: 20;
     -fx-background-color: transparent;
 }
 
 .nav-link:hover {
-    -fx-background-color: rgba(10,83,56,0.12);
+    -fx-background-color: #f1f5f9;
+    -fx-text-fill: #0a5338;
     -fx-underline: false;
+}
+
+.nav-link.active {
+    -fx-background-color: #e6f4ea;
+    -fx-text-fill: #0a5338;
+    -fx-font-weight: bold;
 }
 
 /* ===== 頁面標題與副標題 ===== */
@@ -82,106 +86,87 @@
 
 /* ===== 英雄橫幅 ===== */
 .hero-banner {
-    -fx-background-color: linear-gradient(135deg, #0A5338 0%, #2E8B57 100%);
-    -fx-padding: 0;
-    -fx-spacing: 0;
-    -fx-min-height: 280px;
-    -fx-max-height: 280px;
-}
-
-.hero-content {
-    -fx-padding: 60 32 40 32;
-    -fx-spacing: 16;
-    -fx-alignment: top-left;
+    -fx-background-image: url("file:images/campus_banner.png");
+    -fx-background-size: cover;
+    -fx-background-position: center;
+    -fx-min-height: 200px;
+    -fx-max-height: 200px;
 }
 
 .hero-title {
-    -fx-font-size: 42px;
-    -fx-font-weight: 700;
+    -fx-font-size: 28px;
+    -fx-font-weight: 800;
     -fx-text-fill: #ffffff;
-    -fx-wrap-text: true;
-    -fx-line-spacing: 8;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.6), 8, 0, 0, 2);
 }
 
 .hero-subtitle {
-    -fx-font-size: 16px;
-    -fx-text-fill: #d0fcd0;
-    -fx-font-weight: 300;
-    -fx-wrap-text: true;
+    -fx-font-size: 13px;
+    -fx-font-weight: 500;
+    -fx-text-fill: #ffffff;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.6), 6, 0, 0, 1);
 }
 
 /* ===== 搜尋區 ===== */
 .search-panel {
-    -fx-background-color: rgba(255, 255, 255, 0.85);
-    -fx-background-radius: 20;
-    -fx-padding: 28 32;
-    -fx-effect: dropshadow(three-pass-box, rgba(10,83,56,0.12), 20, 0, 0, 8);
-    -fx-margin: 0 32 28 32;
-    -fx-spacing: 16;
-    -fx-alignment: center;
-    -fx-border-color: rgba(255, 255, 255, 0.6);
-    -fx-border-width: 1;
-}
-
-.search-title {
-    -fx-font-size: 16px;
-    -fx-font-weight: 600;
-    -fx-text-fill: #0a5338;
-}
-
-.search-container {
+    -fx-background-color: rgba(255, 255, 255, 0.25);
+    -fx-background-radius: 30;
+    -fx-border-color: rgba(255, 255, 255, 0.4);
+    -fx-border-radius: 30;
+    -fx-border-width: 1.5;
+    -fx-padding: 16 24;
     -fx-spacing: 12;
     -fx-alignment: center;
-    -fx-max-width: 900;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.15), 15, 0, 0, 5);
 }
 
 .search-field {
-    -fx-padding: 14 18;
-    -fx-background-radius: 14;
-    -fx-border-radius: 14;
-    -fx-border-color: #e2e8f0;
-    -fx-border-width: 1.5;
-    -fx-font-size: 14px;
-    -fx-background-color: #ffffff;
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 8, 0, 0, 2);
-    -fx-pref-width: 500;
+    -fx-background-color: rgba(255, 255, 255, 0.9);
+    -fx-background-radius: 20;
+    -fx-border-radius: 20;
+    -fx-border-color: transparent;
+    -fx-padding: 10 16;
+    -fx-font-size: 13px;
+    -fx-pref-width: 400;
 }
 
 .search-field:focused {
+    -fx-background-color: #ffffff;
     -fx-border-color: #0a5338;
-    -fx-effect: dropshadow(three-pass-box, rgba(10,83,56,0.2), 12, 0, 0, 4);
+    -fx-border-width: 1.5;
 }
 
 .sort-combo {
-    -fx-background-radius: 14;
-    -fx-border-color: #e2e8f0;
-    -fx-border-radius: 14;
-    -fx-border-width: 1.5;
-    -fx-font-size: 14px;
-    -fx-background-color: #ffffff;
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 8, 0, 0, 2);
-    -fx-pref-width: 200;
+    -fx-background-color: rgba(255, 255, 255, 0.9);
+    -fx-background-radius: 20;
+    -fx-border-radius: 20;
+    -fx-border-color: transparent;
+    -fx-padding: 6 12;
+    -fx-font-size: 13px;
+    -fx-pref-width: 180;
 }
 
 .sort-combo:focused {
+    -fx-background-color: #ffffff;
     -fx-border-color: #0a5338;
+    -fx-border-width: 1.5;
 }
 
 /* ===== 按鈕 ===== */
 .btn-primary {
     -fx-background-color: #0a5338;
     -fx-text-fill: white;
-    -fx-font-size: 14px;
+    -fx-font-size: 13px;
     -fx-font-weight: 600;
     -fx-background-radius: 12;
-    -fx-padding: 12 28;
+    -fx-padding: 8 16;
     -fx-cursor: hand;
-    -fx-effect: dropshadow(three-pass-box, rgba(10,83,56,0.2), 10, 0, 0, 3);
+    -fx-effect: dropshadow(three-pass-box, rgba(10,83,56,0.15), 8, 0, 0, 2);
 }
 
 .btn-primary:hover {
-    -fx-background-color: #08643c;
-    -fx-effect: dropshadow(three-pass-box, rgba(10,83,56,0.3), 12, 0, 0, 4);
+    -fx-background-color: #2e8b57;
+    -fx-effect: dropshadow(three-pass-box, rgba(10,83,56,0.25), 10, 0, 0, 3);
 }
 
 .btn-primary:pressed {
@@ -212,19 +197,20 @@
 }
 
 .btn-secondary {
-    -fx-background-color: #f1f5f9;
-    -fx-text-fill: #475569;
+    -fx-background-color: #ffffff;
+    -fx-text-fill: #0a5338;
     -fx-font-size: 13px;
     -fx-font-weight: 600;
-    -fx-background-radius: 10;
-    -fx-padding: 8 16;
+    -fx-background-radius: 12;
+    -fx-border-color: #0a5338;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 12;
+    -fx-padding: 6 14;
     -fx-cursor: hand;
-    -fx-border-color: #e2e8f0;
-    -fx-border-width: 1;
 }
 
 .btn-secondary:hover {
-    -fx-background-color: #e2e8f0;
+    -fx-background-color: #f4fbf7;
 }
 
 .btn-danger {
@@ -246,6 +232,7 @@
 .btn-danger:disabled, .btn-secondary:disabled {
     -fx-background-color: #f1f5f9;
     -fx-text-fill: #cbd5e1;
+    -fx-border-color: transparent;
 }
 
 .btn-ghost {
@@ -257,20 +244,6 @@
 }
 
 .btn-ghost:hover {
-    -fx-text-fill: #064e2f;
-    -fx-underline: true;
-}
-
-.btn-outline {
-    -fx-background-color: transparent;
-    -fx-text-fill: #0a5338;
-    -fx-font-size: 14px;
-    -fx-font-weight: 500;
-    -fx-cursor: hand;
-    -fx-padding: 8 0;
-}
-
-.btn-outline:hover {
     -fx-text-fill: #064e2f;
     -fx-underline: true;
 }
@@ -318,25 +291,43 @@
 }
 
 /* ===== 活動卡片 ===== */
+.cards-container {
+    -fx-alignment: top-center;
+    -fx-padding: 10 32 40 32;
+}
+
 .activity-grid {
-    -fx-hgap: 24;
-    -fx-vgap: 24;
-    -fx-padding: 0 32 40 32;
+    -fx-hgap: 30;
+    -fx-vgap: 30;
+    -fx-padding: 10 0 20 0;
 }
 
 .activity-card {
-    -fx-background-color: rgba(255, 255, 255, 0.9);
+    -fx-background-color: #ffffff;
     -fx-background-radius: 20;
-    -fx-padding: 24 20;
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 16, 0, 0, 4);
-    -fx-border-color: rgba(255, 255, 255, 0.5);
+    -fx-border-color: #e2e8f0;
     -fx-border-width: 1;
-    -fx-spacing: 12;
+    -fx-border-radius: 20;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.06), 15, 0, 0, 4);
     -fx-cursor: hand;
+    -fx-max-width: 340;
+    -fx-pref-width: 300;
+}
+
+.activity-card-cover {
+    -fx-background-radius: 20 20 0 0;
+}
+
+.activity-card-default-cover {
+    -fx-background-image: url("file:images/default_event.png");
+    -fx-background-size: cover;
+    -fx-background-position: center;
+    -fx-background-radius: 20 20 0 0;
 }
 
 .activity-card:hover {
-    -fx-effect: dropshadow(three-pass-box, rgba(10,83,56,0.15), 24, 0, 0, 8);
+    -fx-effect: dropshadow(three-pass-box, rgba(10,83,56,0.12), 20, 0, 0, 8);
+    -fx-border-color: rgba(10,83,56,0.2);
 }
 
 .activity-card-title {
@@ -350,12 +341,7 @@
 .activity-card-info {
     -fx-font-size: 13px;
     -fx-text-fill: #64748b;
-    -fx-spacing: 8;
-}
-
-.activity-card-label {
-    -fx-text-fill: #94a3b8;
-    -fx-font-weight: 500;
+    -fx-spacing: 4;
 }
 
 .activity-card-value {
@@ -364,17 +350,17 @@
 }
 
 .activity-card-footer {
-    -fx-spacing: 8;
+    -fx-spacing: 12;
     -fx-padding: 12 0 0 0;
     -fx-border-color: #f1f5f9;
     -fx-border-width: 1 0 0 0;
 }
 
 .activity-status-badge {
-    -fx-font-size: 12px;
+    -fx-font-size: 11px;
     -fx-font-weight: 700;
-    -fx-padding: 4 10;
-    -fx-background-radius: 8;
+    -fx-padding: 3 8;
+    -fx-background-radius: 6;
     -fx-text-fill: white;
 }
 
@@ -383,7 +369,7 @@
 }
 
 .status-badge-closed {
-    -fx-background-color: #ef4444;
+    -fx-background-color: #94a3b8;
 }
 
 .status-badge-pending {
@@ -417,6 +403,19 @@
     -fx-font-size: 13px;
     -fx-text-fill: #64748b;
     -fx-font-weight: 600;
+}
+
+.event-image-preview {
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 8;
+    -fx-background-color: #f8fafc;
+}
+
+.detail-cover-image {
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 8, 0, 0, 2);
+    -fx-background-radius: 10;
+    -fx-max-width: 520;
+    -fx-pref-height: 220;
 }
 
 .detail-content {
@@ -533,6 +532,24 @@
 
 .table-view .table-row-cell:hover {
     -fx-background-color: #f0f9ff;
+}
+
+/* ===== 狀態標籤 (Table View Badges) ===== */
+.status-badge {
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-padding: 4 12;
+    -fx-background-radius: 12;
+    -fx-text-fill: #ffffff;
+    -fx-alignment: center;
+}
+
+.status-badge-confirmed {
+    -fx-background-color: #10b981;
+}
+
+.status-badge-attended {
+    -fx-background-color: #009cf7;
 }
 
 /* ===== 表單 Dialog ===== */

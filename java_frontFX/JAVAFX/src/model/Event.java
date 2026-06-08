@@ -1,5 +1,6 @@
 package model;
 
+import service.TeacherService;
 import util.EventDateUtil;
 
 public class Event implements EventDateUtil.EventTimeHolder {
@@ -11,15 +12,17 @@ public class Event implements EventDateUtil.EventTimeHolder {
     private String regTime;
     private String eventTime;
     private String contact;
+    private String organizerName;
     private String status;
     private String unit;
     private String content;
     private int limit;
+    private String imagePath;
 
     public Event(String id, String name, String location,
                  String regStart, String regEnd, String eventTime,
                  String contact, String status, String unit,
-                 String content, int limit) {
+                 String content, int limit, String imagePath, String organizerName) {
         this.id = id;
         this.name = name;
         this.location = location;
@@ -28,10 +31,13 @@ public class Event implements EventDateUtil.EventTimeHolder {
         this.regTime = regStart + " ~ " + regEnd;
         this.eventTime = eventTime;
         this.contact = contact;
+        this.organizerName = organizerName != null && !organizerName.isBlank()
+                ? organizerName : TeacherService.getName(contact);
         this.status = status;
         this.unit = unit;
         this.content = content;
         this.limit = limit;
+        this.imagePath = imagePath != null ? imagePath : "";
     }
 
     public String getId() { return id; }
@@ -63,6 +69,9 @@ public class Event implements EventDateUtil.EventTimeHolder {
     public String getContact() { return contact; }
     public void setContact(String contact) { this.contact = contact; }
 
+    public String getOrganizerName() { return organizerName; }
+    public void setOrganizerName(String organizerName) { this.organizerName = organizerName; }
+
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
 
@@ -74,4 +83,14 @@ public class Event implements EventDateUtil.EventTimeHolder {
 
     public int getLimit() { return limit; }
     public void setLimit(int limit) { this.limit = limit; }
+
+    public String getImagePath() { return imagePath; }
+    public void setImagePath(String imagePath) { this.imagePath = imagePath != null ? imagePath : ""; }
+
+    public String getOrganizerDisplay() {
+        if (organizerName != null && !organizerName.isBlank()) {
+            return organizerName + (unit != null && !unit.isBlank() ? "（" + unit + "）" : "");
+        }
+        return contact;
+    }
 }
